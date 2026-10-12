@@ -544,22 +544,46 @@ export async function boot({ setStatus } = {}) {
       return ctx.wind;
     })
     .catch((e) => { console.warn('the wind did not load', e); windImport = null; return null; }));
+  // OCEAN CURRENTS are the wind's sibling: scene/currents.js, fetched when "Ocean currents" is chosen,
+  // which then reads our two saved copies (data/currents.js: the current, and the sea's temperature
+  // that colours it). The same rule: one overlay at a time.
+  ctx.currents = null;
+  let currentsImport = null;
+  const CURRENTS_OVERLAY = 'currents';
+  const wantCurrents = () => currentsImport || (currentsImport = import('./scene/currents.js')
+    .then((m) => {
+      ctx.currents = m.createCurrents({
+        earth: () => worlds.meshFor('earth'),
+        saveData: typeof navigator !== 'undefined' && shouldSaveData(navigator.connection),
+        tier: ctx.quality ? ctx.quality.tier : 1, // 1200, 2500 or 5000 streaks (scene/currents.js COUNT_BY_TIER)
+        reducedMotion: !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches),
+        onChange: tellOverlay,
+      });
+      return ctx.currents;
+    })
+    .catch((e) => { console.warn('the ocean currents did not load', e); currentsImport = null; return null; }));
+  /** The overlays that are streaks of their own module, not a GIBS map. */
+  const isStreaks = (id) => id === WIND_OVERLAY || id === CURRENTS_OVERLAY;
   const applyOverlay = (id) => {
     if (id === overlayAsked) return;
     overlayAsked = id;
     const windOn = id === WIND_OVERLAY;
     if (windOn) wantWind().then((w) => { if (w) w.set(overlayAsked === WIND_OVERLAY); else tellOverlay(); });
     else if (ctx.wind) ctx.wind.set(false);
-    const map = windOn ? null : id;
+    if (id === CURRENTS_OVERLAY) wantCurrents().then((c) => { if (c) c.set(overlayAsked === CURRENTS_OVERLAY); else tellOverlay(); });
+    else if (ctx.currents) ctx.currents.set(false);
+    const map = isStreaks(id) ? null : id;
     if (!map && !ctx.earthOverlay) { tellOverlay(); return; }
-    wantOverlay().then((o) => { if (o) o.set(overlayAsked === WIND_OVERLAY ? null : overlayAsked); else tellOverlay(); });
+    wantOverlay().then((o) => { if (o) o.set(isStreaks(overlayAsked) ? null : overlayAsked); else tellOverlay(); });
     tellOverlay();
   };
   /** What is on the globe: the scene module's state(), or its stand-in while the module loads. */
   ctx.overlayState = () => (overlayAsked === WIND_OVERLAY
     ? (ctx.wind ? { ...ctx.wind.state(), id: WIND_OVERLAY } : { id: WIND_OVERLAY, kind: 'wind', status: 'loading' })
-    : ctx.earthOverlay ? ctx.earthOverlay.state()
-      : { id: overlayAsked, status: overlayAsked ? 'loading' : 'off' });
+    : overlayAsked === CURRENTS_OVERLAY
+      ? (ctx.currents ? { ...ctx.currents.state(), id: CURRENTS_OVERLAY } : { id: CURRENTS_OVERLAY, kind: 'currents', status: 'loading' })
+      : ctx.earthOverlay ? ctx.earthOverlay.state()
+        : { id: overlayAsked, status: overlayAsked ? 'loading' : 'off' });
   ctx.setOverlay = (id) => {
     overlayOwn = id || null;
     const st = ctx.trip.state;
@@ -2363,7 +2387,7 @@ function startLoop({ ctx, resize, render, worlds, glyphLayers, cameraRig, starfi
   //   SO THE CAP IS RARE TODAY on a first visit that has a forecast: the oval's folds keep every
   //   frame. Whether the folds may run at twenty frames a second at rest is a question for an eye,
   //   not for this file (the internal issue beside #520); until it is answered they get all sixty.
-  //   - the wind and a data overlay, once asked for, are taken to be moving.
+  //   - the wind, the ocean currents and a data overlay, once asked for, are taken to be moving.
   // (The pulsars' pulses are drawn on the ladder's stages only, which `stage` already answers.)
   // Asked four times a second: the aurora's state() builds an object.
   let layerMoving = true;
@@ -2373,7 +2397,7 @@ function startLoop({ ctx, resize, render, worlds, glyphLayers, cameraRig, starfi
     layerAskedAt = nowMs;
     const aurora = ctx.aurora && typeof ctx.aurora.state === 'function' ? ctx.aurora.state() : null;
     const flashes = ctx.isLayerOn('lightning') && ctx.weather && typeof ctx.weather.perMinute === 'function' ? ctx.weather.perMinute() : 0;
-    layerMoving = !!(aurora && aurora.visible && aurora.folds) || flashes > 0 || !!ctx.wind || !!ctx.earthOverlay;
+    layerMoving = !!(aurora && aurora.visible && aurora.folds) || flashes > 0 || !!ctx.wind || !!ctx.currents || !!ctx.earthOverlay;
     return layerMoving;
   }
   function gpuChanged() {
@@ -2549,6 +2573,7 @@ function startLoop({ ctx, resize, render, worlds, glyphLayers, cameraRig, starfi
     }
     if (ctx.earthOverlay) ctx.earthOverlay.update();
     if (ctx.wind) ctx.wind.update();
+    if (ctx.currents) ctx.currents.update();
     if (ctx.systems) {
       ctx.systems.setVisible(ctx.isLayerOn('systems'));
       ctx.systems.update(t, ctx.camera);
