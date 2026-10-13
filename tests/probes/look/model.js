@@ -15,8 +15,9 @@
 // copy of the table, and the summary says so in `standIn`: the pictures then show the model and say
 // nothing about who wears it.
 //
-// THE SHAPE IT REPLACES. When the route has both a build and a file, the same record is photographed
-// again wearing the procedural shape, from the same places.
+// THE SHAPE IT REPLACES. When the route has a file, the same record is photographed again wearing
+// the procedural shape the file replaces (the route's build, or its class shape when the route
+// names none), from the same places.
 //
 // A CANDIDATE. A route that is still procedural, on a tree that has `models/<build>-candidate.glb`, is
 // photographed as it ships and then wearing the candidate.
@@ -29,7 +30,6 @@
 // What the summary carries besides the pictures: the route (`file`, `build`, `made`), whether the
 // file arrived, the meshes, triangles and colours actually on screen, and the card's "drawn as" line.
 look.probe = 'model';
-const out = { subject: null, standIn: null, views: [] };
 const urlOf = (path) => new URL(path, document.baseURI).href;
 const wordIn = (name, word) => new RegExp('(^|[^a-z0-9])' + word + '([^a-z0-9]|$)', 'i').test(String(name || ''));
 const RM = await import(urlOf('./js/scene/realmodels.js'));
@@ -38,14 +38,23 @@ const RM = await import(urlOf('./js/scene/realmodels.js'));
 try { if (!sr.isLayerOn('stations')) sr.setLayerOn('stations', true); } catch { /* an older ref: it is on by default */ }
 await until(() => (sr.recordsFor('stations') || []).length > 0, 90000, 500);
 const stations = sr.recordsFor('stations') || [];
-out.stations = stations.length;
 
-const asked = new URLSearchParams(location.search).get('lookSubject');
+// SEVERAL SUBJECTS IN ONE RUN (2026-10-13): ids joined by an underscore, `sat-57800_sat-38358`. A
+// batch of four models is then one run and not four, and the four are photographed at the same
+// clock by the same browser. Each subject's pictures carry its id (`sat-57800--flat-1-as-framed`)
+// and the summary carries one entry a subject under `subjects`; any one's `fail` fails the run.
+// No record id and no name on the stations layer has an underscore in it.
+const param = new URLSearchParams(location.search).get('lookSubject');
+const one = async (asked, prefix) => {
+const out = { subject: null, standIn: null, views: [], stations: stations.length };
 // A subject is a record id, or failing that the words of a name with dashes for spaces
 // (`crew-dragon`: a visiting vehicle's id changes every flight, and its name does not).
 const byName = (words) => stations.find((r) => String(r.name || '').toLowerCase().includes(String(words).toLowerCase().replace(/-/g, ' '))) || null;
+// A subject on another layer (a satellite worth knowing, a bright one) arrives when its layer's
+// file does, which is after the stations: wait for it before saying it is not there.
+if (asked) await until(() => sr.recordById(asked) || byName(asked), 120000, 500);
 let record = asked ? (sr.recordById(asked) || byName(asked)) : stations.find((r) => wordIn(r.name, 'cygnus') && RM.realModelFor(r)) || null;
-if (asked && !record) return finish({ ...out, fail: 'no record with the id or the name ' + asked + ' on this page; the stations layer has ' + stations.map((r) => r.id + ' ' + r.name).join(', ') });
+if (asked && !record) return ({ ...out, fail: 'no record with the id or the name ' + asked + ' on this page; the stations layer has ' + stations.map((r) => r.id + ' ' + r.name).join(', ') });
 if (!record) {
   // No Cygnus in orbit today: the ISS's record wears the file for the picture, and says so.
   record = sr.recordById('sat-25544') || stations[0];
@@ -161,8 +170,8 @@ const walk = async (tag, what) => {
   const take = async (name, words) => {
     await sleep(4000);
     const at = onScreen();
-    await shot(tag + '-' + name, what + ', ' + words + '; its circle ' + (at && at.px) + ' px across');
-    out.views.push({ name: tag + '-' + name, at });
+    await shot(prefix + tag + '-' + name, what + ', ' + words + '; its circle ' + (at && at.px) + ' px across');
+    out.views.push({ name: prefix + tag + '-' + name, at });
   };
   await take('1-as-framed', 'as the app frames a selected craft');
   const high = Math.min(p0, 1.05);
@@ -188,16 +197,23 @@ const wearInstead = (obj, thing) => {
 // WHAT IT REPLACES. A route with both a build and a file (the Cygnus, JWST, New Horizons) draws the
 // procedural shape until the file arrives. The same record wearing that shape, from the same six
 // places, is the comparison a person deciding whether the file is an improvement needs.
-if (entry.build && entry.file) {
+//
+// A ROUTE WITH A FILE AND NO BUILD (2026-10-13, the first batch of the "3D model:" issues): NuSTAR
+// and NOAA-21 had no route at all before their files, so what the map drew was the record's class
+// shape. That is what main draws on a visitor's screen until the file arrives and what it drew
+// before the file existed, so it is photographed the same way: `modelFor(record.klass, the record's
+// own variant)`, exactly the call scene/heroes.js acquire() makes for a record with no build.
+if (entry.file) {
   try {
     const M = await import(urlOf('./js/scene/models.js'));
-    const built = M.modelFor(M.builderKlass(record.klass, entry.build), entry.build, { record });
+    const variant = entry.build || (record.meta && record.meta.modelVariant) || undefined;
+    const built = M.modelFor(entry.build ? M.builderKlass(record.klass, entry.build) : record.klass, variant, { record });
     const obj = heroOf();
     if (!built || !obj) throw new Error('the procedural shape could not be built, or the hero is gone');
     const back = wearInstead(obj, built);
     await sleep(2500);
-    out.procedural = { build: entry.build, model: describe(built) };
-    await walk('procedural', record.name + ' wearing the procedural shape `' + entry.build + '` that the file replaces (put back by the probe for the comparison)');
+    out.procedural = { build: entry.build || null, klassShape: entry.build ? null : record.klass, model: describe(built) };
+    await walk('procedural', record.name + ' wearing the procedural shape ' + (entry.build ? '`' + entry.build + '`' : 'of its class, `' + record.klass + '`,') + ' that the file replaces (put back by the probe for the comparison)');
     back();
     await sleep(1500);
   } catch (e) { out.procedural = { error: String((e && e.message) || e) }; }
@@ -252,4 +268,15 @@ if (hasTextured) {
     back();
   } catch (e) { out.textured.error = String((e && e.message) || e); }
 }
-return finish(out);
+return out;
+};
+const subjects = param ? param.split('_').filter(Boolean) : [null];
+const done = [];
+for (const subject of subjects) {
+  try { done.push(await one(subject, subjects.length > 1 ? subject + '--' : '')); }
+  catch (e) { done.push({ subject: { id: subject }, views: [], fail: 'the probe threw on ' + subject + ': ' + String((e && e.message) || e) }); }
+}
+const failed = done.filter((d) => d.fail).map((d) => d.fail);
+// One subject: its own summary, as this probe has always returned it. Several: one entry each.
+const summary = done.length === 1 ? done[0] : { subjects: done, views: done.flatMap((d) => d.views || []), ...(failed.length ? { fail: failed.join(' | ') } : {}) };
+return finish(summary);
