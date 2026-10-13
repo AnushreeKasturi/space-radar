@@ -1226,7 +1226,6 @@ export const COPY = {
       // A dwarf planet's known moons, by name (data/sample.js farBodies, each from its article's
       // infobox). An empty list is a fact too: Ceres and Sedna have none that anyone has found.
       moons: 'Moons',
-      missDistance: 'Miss distance',
       perihelion: 'Closest to the Sun',
       magnitude: 'Brightness',
       phase: 'Phase',
