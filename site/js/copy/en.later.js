@@ -1697,4 +1697,32 @@ Object.assign(COPY, {
       eyeball: 'one face always to its star',
     },
   },
+
+  // DEEP SPACE (internal spec 0075, 2026-10-14). ONE BLOCK PER STAGE, created here by stage a so the
+  // stages that run in parallel each fill their own and never edit the same lines (design section
+  // 11, amendment of 2026-10-14): deep (a: the foundation), deepHelix (b), deepLmc (c), deepGalaxy
+  // (d), deepCosmos (e). A stage writes only inside its own block.
+  deep: {
+    // The card's microlabel for a deep-sky object inside another (task 3): "Emission nebula · Inside
+    // the Large Magellanic Cloud". `companion` for a galaxy beside a galaxy (M32 by Andromeda).
+    inside: 'Inside the {parent}',
+    companion: 'A companion of the {parent}',
+    // Finer kinds for the microlabel, by OpenNGC type code; anything else keeps the plain kind.
+    kinds: { HII: 'emission nebula', PN: 'planetary nebula', SNR: 'supernova remnant', RfN: 'reflection nebula', DrkN: 'dark nebula', GCl: 'globular cluster' },
+    // The way back out (task 3): a child's card offers its parent.
+    back: 'Back to the {parent}',
+    backTitle: 'Fly out to the {parent} round it',
+  },
+
+  // b. The Helix (stage b, internal #787) writes only inside this block.
+  deepHelix: {},
+
+  // c. The LMC and the Tarantula (stage c, internal #788) writes only inside this block.
+  deepLmc: {},
+
+  // d. Andromeda and galaxy structure (stage d, internal #789) writes only inside this block.
+  deepGalaxy: {},
+
+  // e. Cosmic scale (stage e, internal #790) writes only inside this block.
+  deepCosmos: {},
 });
