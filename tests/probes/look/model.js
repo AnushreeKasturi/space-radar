@@ -141,29 +141,45 @@ out.camera = { riding: !!(rig.state && rig.state.riding), following: !!(rig.stat
 // nothing (the first run of this probe, 2026-10-12, met CYGNUS NG-24 eleven minutes before sunrise).
 // So the clock is stepped forward five minutes at a time until the craft is out of the shadow, and
 // ten minutes more so the Sun is off the horizon. The summary says how far it was moved.
-const earthR = () => { try { return sr.worlds.drawnRadiusUnits('earth') || 0; } catch { return 0; } };
+// A SITE ON ANOTHER WORLD (2026-10-15, batch eleven: Curiosity at Gale crater). Everything below was the
+// Earth's: the shadow test, the frame the camera walks in, the room under a craft. A landing site stands on
+// its own world (registry/sites.yaml `world`, carried as meta.world), is lit when the Sun is up over it,
+// and has no underside to look at; the first run photographed Gale at night, from places inside Mars.
+const onGround = record.klass === 'site' && !!(record.meta && record.meta.world);
+const home = onGround ? record.meta.world : 'earth';
+const earthR = () => { try { return sr.worlds.drawnRadiusUnits(home) || 0; } catch { return 0; } };
 const sunlit = () => {
   const obj = heroOf();
   const sun = sr.worlds.meshFor('sun');
-  const earth = sr.worlds.meshFor('earth');
+  const earth = sr.worlds.meshFor(home);
   if (!obj || !sun || !earth) return null;
   const p = obj.getWorldPosition(obj.position.clone()).sub(earth.position);
   const s = unit({ x: sun.position.x - earth.position.x, y: sun.position.y - earth.position.y, z: sun.position.z - earth.position.z });
   const along = p.x * s.x + p.y * s.y + p.z * s.z;
+  // On the ground: the Sun at least 25 degrees above the site's horizon.
+  if (onGround) return along / Math.max(1e-9, Math.hypot(p.x, p.y, p.z)) > Math.sin((25 * Math.PI) / 180);
   if (along > 0) return true;
   const off = Math.hypot(p.x - along * s.x, p.y - along * s.y, p.z - along * s.z);
   return off > earthR() * 1.01;
 };
 out.light = { litAtFirst: sunlit(), movedMinutes: 0 };
-if (out.light.litAtFirst === false) {
+// ON THE GROUND THE CARD'S OWN LAMP (the second Gale run, 2026-10-15): a step of the clock that the test
+// above called daylight still drew the rover black on black ground, and the card offered "Light it". That
+// lamp (scene/models.js setFloodLight, our light and not the Sun's, said on the card while it is on) is what
+// a visitor presses there, so the probe presses it too, and every picture's line says so.
+const MM = onGround ? await import(urlOf('./js/scene/models.js')) : null;
+if (MM && typeof MM.setFloodLight === 'function') { MM.setFloodLight(true); out.light.flood = true; look.warns.push('probe: ' + record.id + ' is photographed under the card\'s lamp ("Light it"), not in the Sun\'s light'); }
+if (out.light.litAtFirst === false && !onGround) {
   const t0 = sr.clock.now();
   let found = null;
-  for (let k = 1; k <= 14 && found === null; k++) {
-    sr.clock.goTo(t0 + k * 5 * 60e3);
+  // A site waits for its morning: an hour a step, a little more than a day of Mars.
+  const step = onGround ? 60 : 5, steps = onGround ? 26 : 14, more = onGround ? 1 : 2;
+  for (let k = 1; k <= steps && found === null; k++) {
+    sr.clock.goTo(t0 + k * step * 60e3);
     await sleep(3500);
     if (sunlit()) found = k;
   }
-  if (found !== null) { sr.clock.goTo(t0 + (found + 2) * 5 * 60e3); await sleep(4000); out.light.movedMinutes = (found + 2) * 5; }
+  if (found !== null) { sr.clock.goTo(t0 + (found + more) * step * 60e3); await sleep(4000); out.light.movedMinutes = (found + more) * step; }
   // The camera followed the craft round the Earth from where it stood, which by now is anywhere
   // (the second run's "as framed" was from inside the clouds). Selected again, it is framed again.
   sr.select(record, { fly: true, undo: false });
@@ -205,7 +221,7 @@ const onScreen = () => {
 const sunFrame = () => {
   const obj = heroOf();
   const sun = sr.worlds.meshFor('sun');
-  const earth = sr.worlds.meshFor('earth');
+  const earth = sr.worlds.meshFor(home);
   if (!obj || !sun || !earth) return null;
   const p = obj.getWorldPosition(obj.position.clone());
   const z = unit({ x: earth.position.x - p.x, y: earth.position.y - p.y, z: earth.position.z - p.z });
@@ -250,6 +266,7 @@ const walk = async (tag, what) => {
     let lit = d.x * f.s.x + d.y * f.s.y + d.z * f.s.z;
     if (lit < 0.2) { d = unit(mix(d, 1, f.s, 0.6)); lit = d.x * f.s.x + d.y * f.s.y + d.z * f.s.z; }
     const above = -(d.x * f.z.x + d.y * f.z.y + d.z * f.z.z);
+    if (side === 'below' && onGround) { look.warns.push('probe: ' + name + ' not taken for ' + record.id + ': a site on the ground has no underside'); continue; }
     if (side === 'below') {
       // The lean toward the light may have lifted it: it stays at least 30 degrees under the craft's horizon.
       const under = d.x * f.z.x + d.y * f.z.y + d.z * f.z.z;
@@ -266,7 +283,7 @@ const walk = async (tag, what) => {
       // until the camera is outside that sphere; the view's line says what it took.
       const obj = heroOf();
       const p = obj.getWorldPosition(obj.position.clone());
-      const e = sr.worlds.meshFor('earth').position;
+      const e = sr.worlds.meshFor(home).position;
       const keepOut = earthR() * 1.02 * 1.02;
       const clear = (dir, dist) => Math.hypot(p.x + dir.x * dist - e.x, p.y + dir.y * dist - e.y, p.z + dir.z * dist - e.z) > keepOut;
       const flat = unit(mix(d, 1, f.z, -(d.x * f.z.x + d.y * f.z.y + d.z * f.z.z)));       // the same heading, on the craft's horizon
@@ -297,7 +314,7 @@ const walk = async (tag, what) => {
   rig.flyTo({ azimuth: a0, polar: p0, distance: d0, ms: 0 });
   await sleep(1500);
 };
-await walk('flat', (out.standIn ? 'the model on a stand-in record' : record.name) + ' wearing ' + (entry.file || entry.build || 'its class shape'));
+await walk('flat', (out.standIn ? 'the model on a stand-in record' : record.name) + ' wearing ' + (entry.file || entry.build || 'its class shape') + (out.light.flood ? ' under the card\'s lamp' : ''));
 
 /** Put something else on the hero for a set of pictures; returns the way back. */
 const wearInstead = (obj, thing) => {
@@ -391,6 +408,8 @@ for (const subject of subjects) {
   // A layer this subject needed is put back as it was: sixteen thousand dots do not belong in the
   // next craft's pictures (the third run of batch two photographed Ajisai through them).
   const last = done[done.length - 1];
+  // The card's lamp is put out again: the next subject is photographed in the Sun's light.
+  if (last && last.light && last.light.flood) { try { (await import(urlOf('./js/scene/models.js'))).setFloodLight(false); } catch { /* an older ref */ } }
   if (last && last.layerTurnedOn) { try { sr.setLayerOn(last.layerTurnedOn, false); await sleep(1500); } catch { /* it stays on, and the pictures show it */ } }
 }
 const failed = done.filter((d) => d.fail).map((d) => d.fail);
