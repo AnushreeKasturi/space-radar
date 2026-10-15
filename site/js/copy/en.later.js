@@ -18,6 +18,47 @@ import { COPY, article } from './en.js';
 import './en.facts.js';
 
 Object.assign(COPY, {
+  // Jupiter's storms (2026-10-12, spec 0073 req 4; registry/weather.yaml jupiter-eddies, -ovals,
+  // -polar-cyclones, -depth), two sentences added to the world's weather line (COPY.weather.worlds,
+  // in copy/en.js) where they are worn; scene/weather/index.js reads them. `turning` is said only
+  // where things turn (not where less motion is asked for); `poles` wherever the cap is drawn.
+  // Here and not beside the line they extend, so a first visit does not carry them.
+  weatherStorms: {
+    turning: {
+      jupiter: 'Seen close, small eddies roll where the measured winds shear and in the Great Red Spot’s wake, and Oval BA and three white ovals turn. Where the shear is, is measured; each eddy is generated, finer than the map: illustrative.',
+    },
+    poles: {
+      jupiter: 'The cyclones round each pole are modelled from Juno’s observations of 2017, eight round one in the north and five in the south: a reconstruction, not a photograph. The darker deck in the gaps is illustrative.',
+    },
+  },
+
+  // The giants' close-range cloud detail (scene/weather/worldweather.js WX_DETAIL; registry/weather.yaml
+  // kind cloud-detail), one sentence for the four of them, after the storms' on the weather line.
+  weatherDetail: 'Closer than the map is sharp, a fine streaky cloud texture is generated to carry the picture: it moves with the measured winds and keeps the map’s own colours, and not one streak of it is a real cloud. Illustrative.',
+
+  // Saturn's polar vortex (2026-10-12, spec 0073 requirement 5): a sentence added to its weather
+  // line where the vortex can be drawn. The eye's size and the wall's speed are Cassini's (NASA,
+  // PIA14944); the spiral is ours, and the card says so.
+  weatherVortex: {
+    turning: {
+      saturn: 'Seen close, a small cyclone turns inside the hexagon: its eye is 2\u202F000 km across and its wall goes round at 150 metres a second, as Cassini measured in 2012. The spiral drawn round it is illustrative, and nothing is watching it now.',
+    },
+    still: {
+      saturn: 'Seen close, a small cyclone sits inside the hexagon: its eye is 2\u202F000 km across, as Cassini measured in 2012, when its wall went round at 150 metres a second. The spiral drawn round it is illustrative, and nothing is watching it now.',
+    },
+  },
+
+  // What the Sun is doing, on its card under the spots' line (scene/sun.js, data/sunactivity.js; spec
+  // 0073 requirement 2). Each line says what was measured and by whom, and what is only drawn.
+  sunAlive: {
+    prominences: '{n} prominences stand on its edge, at the active regions NOAA lists within fifteen degrees of the limb. The places are measured; the shapes, heights and motion are illustrative.',
+    prominencesOne: 'One prominence stands on its edge, at an active region NOAA lists within fifteen degrees of the limb. The place is measured; the shape, height and motion are illustrative.',
+    // {cls} "M2.3"; {region} NOAA's number; {time} "02:02"; {date} "2026-10-12".
+    flare: 'A class {cls} flare is showing at region {region}: it peaked at {time} UTC on {date}, by NOAA’s event list. Its time, class, region and fading are measured; how bright it is drawn is illustrative.',
+    // {speed} km/s, a whole number.
+    cme: 'A coronal mass ejection that left at {time} UTC on {date} at {speed} km/s is drawn as a coronagraph shows one: a bright loop moving outward, a darker hollow behind it and a bright core. Its start, direction, width and speed are from NASA’s DONKI catalogue; the cloud keeps that speed, which real ones do not, and its look is illustrative.',
+  },
+
   // A star system from the NASA Exoplanet Archive's table, drawn at its own scale (internal #466;
   // scene/systemextras.js draws the labels, ui/systemcard.js prints the rows). The rule every line
   // here keeps: a number the table measured is given plainly; a number the Archive estimated, or
@@ -112,7 +153,6 @@ Object.assign(COPY, {
   // Each label says what the sphere is and how far, in words the scene can carry on one line.
   shells: {
     radio: 'Radio from Earth has reached {n} light-years',
-    cmb: 'The microwave background: 46.5 billion light-years',
   },
   // ui/subscribe.js (issue #251): email-only alerts for upcoming launches and meteor shower
   // peaks -- the same for every subscriber, never a per-location pass alert (that is issue #290).
@@ -177,6 +217,55 @@ Object.assign(COPY, {
     shape: '{n} stops · {m} min',
     take: 'Take the controls',
     takeTitle: 'Stop the trips and move the map yourself',
+  },
+
+  // ui/drift.js (spec 0071): the camera wanders from one thing to the next. The bar is the only
+  // chrome, and it goes when the pointer is still.
+  drift: {
+    name: 'Drift',
+    pause: 'Pause (Space)',
+    resume: 'Go on (Space)',
+    next: 'Next place (N)',
+    options: 'Options',
+    optionsTitle: 'What to travel through, what to show and the pace',
+    leave: 'Stop drifting (Escape)',
+    through: 'Travel through',
+    cats: { craft: 'Spacecraft', worlds: 'Worlds', small: 'Small bodies', stars: 'Stars', deep: 'Deep sky' },
+    show: 'Show',
+    real: 'Real models',
+    realTitle: 'Only things with a real model, map or photograph',
+    names: 'Names',
+    namesTitle: 'The name and numbers beside each place',
+    bare: 'Only space',
+    bareTitle: 'Nothing but the sky and the things in it: no names, marks, lines or panels',
+    pace: 'Pace',
+    paces: { calm: 'Calm', steady: 'Steady', brisk: 'Brisk' },
+    // Said once, when the row starts it.
+    hint: 'Drifting. Drag the map to take the controls',
+    nothing: 'Nothing to drift through with these choices',
+    notFromGround: 'The drift starts from space, not from the ground',
+  },
+
+  // ui/onboarding.js (internal spec 0074): the tour's caption and the first visit's line. A step's
+  // own two lines are not here: they are registry/onboarding.yaml's, as a trip stop's are its
+  // registry's, because the trips' voice is rendered from them.
+  tour: {
+    label: 'The tour',
+    micro: 'Tour',
+    count: '{n} / {of}',
+    next: 'Next',
+    nextTitle: 'The next step (N)',
+    done: 'Done',
+    doneTitle: 'End the tour',
+    skip: 'Skip',
+    skipTitle: 'Leave the tour (Escape)',
+    voice: 'Voice',
+    // The voice is synthetic and the app says so (spec 0069).
+    voiceTitle: 'Read each step aloud, in a synthetic voice',
+    // In place of the ask, once the thing asked for was done and the step waits.
+    waited: 'Have a look, then go on.',
+    invite: 'First time here: take the tour',
+    inviteTitle: 'Eight steps round the map',
   },
 
   // The toast after the app has moved the view for you (ui/camundo.js, internal #274).
@@ -353,6 +442,8 @@ Object.assign(COPY, {
     seenTitle: 'Seen with your own eyes',
     noSeen: 'Nothing ticked yet. A card has a Seen it button.',
     seenIt: 'Seen it',
+    // The name of the card's quiet row (ui/cardextras.js skyControls), for a screen reader.
+    toolsLabel: 'More for this object',
     seenOn: 'Seen {date}',
     seenTitleOff: 'Tick when you have seen it with your own eyes',
     seenTitleOn: 'Ticked as seen. Press to take the tick back',
@@ -385,6 +476,17 @@ Object.assign(COPY, {
     ],
     place: 'Your place is rounded to a tenth of a degree and held only while this page is open.',
     none: 'No account, no cookies, no analytics. Forget me, in the Passport, clears the passport and the sound choice.',
+  },
+
+  // Which commit this site was built from (public #291; ui/status.js `builtFrom`): one line at the
+  // foot of the Sources sheet, a link to that commit on GitHub. Read from /build.json when the sheet
+  // opens (scripts/build_info.py writes it at deploy); a copy run from a folder has none, and then
+  // there is no line. {sha} is seven characters in the line and the whole commit in the address;
+  // {date} is the day of the build, UTC, "12 October 2026".
+  buildInfo: {
+    line: 'Built from {sha}, {date}',
+    title: 'The commit this site was built from, on GitHub',
+    href: 'https://github.com/Sara-Managed-Projects/space-radar/commit/{sha}',
   },
 
   // "Is this what space looks like?" (internal #250, spec 0067 task 4): the honest answer, once, in
@@ -493,7 +595,7 @@ Object.assign(COPY, {
     creditsLine: 'Music and sounds: {credits}',
     // Spec 0069 task 5. The registry's own line (registry/narration.yaml `voice.credit`, carried
     // by CREDITS.md section 9b): tests/test_narration.mjs holds the three to one string.
-    narrationCredit: 'Narration: a synthetic voice, Kokoro-82M (bf_emma), Apache-2.0',
+    narrationCredit: 'Narration: a synthetic voice, Kokoro-82M (af_heart), Apache-2.0',
   },
 
   // A world with a second face on its card (scene/worlds.js `faces`, 2026-10-06, public #417).
@@ -505,7 +607,7 @@ Object.assign(COPY, {
       modes: { own: 'Clouds', surface: 'Ground' },
       notes: {
         own: 'The cloud tops, which is all an eye or a telescope ever sees of Venus.',
-        surface: 'The ground under the clouds, mapped by radar from orbit by NASA\u2019s Magellan between 1990 and 1992. Bright is rough ground and dark is smooth. The orange is added, and the strips Magellan missed are filled in from their edges.',
+        surface: 'The ground under the clouds, mapped by radar from orbit by NASA\u2019s Magellan between 1990 and 1992. Bright is rough ground and dark is smooth. The orange is added, and the strips Magellan missed are filled in from their edges. It is lit by the Sun as if the clouds were not there: its mountains and scarps from Magellan\u2019s altimeter, drawn six times taller, cast their shadows. It does not move with the clouds.',
       },
     },
     // 2026-10-07: the four giants' second face, Hubble's yearly OPAL maps (registry/textures.yaml
@@ -577,6 +679,42 @@ Object.assign(COPY, {
     creditTail: ' \u00b7 {licence}, edges faded and sky darkened by us',
   },
 
+  // Measured or Film (spec 0073 requirement 8; scene/exposure.js createDrawn, ui/exposure.js lookPanel):
+  // two words in a row beside Exposure. No line under the row: each word's tooltip says what it does,
+  // in under 60 characters. The postcard's word is COPY.print.look (copy/en.js).
+  look: {
+    panelTitle: 'Look',
+    modes: { measured: 'Measured', film: 'Film' },
+    titles: {
+      measured: 'Only what is measured or modelled, at true rate',
+      film: 'Adds generated detail and illustrative weather',
+    },
+  },
+  // What a world's card says about the look, at the end of its weather line (scene/weather/index.js),
+  // only on a world the look changes; and the sentences of that line that differ under Measured,
+  // because what they describe in Film is not drawn (registry/weather.yaml `measured: hidden`).
+  lookSaid: {
+    measured: 'Measured look: nothing generated or illustrative is drawn on it.',
+    film: 'Film look: generated detail and illustrative weather are drawn.',
+    worlds: {
+      saturn: 'Weather: the bands move at the wind speeds Cassini measured. Modelled motion, not today’s clouds.',
+    },
+    also: {
+      venus: 'Lightning on Venus has been reported and is still debated; none is drawn.',
+    },
+    turning: {
+      jupiter: 'Seen close, Oval BA and three white ovals turn where the map has them.',
+    },
+    poles: {
+      jupiter: 'The cyclones round each pole are modelled from Juno’s observations of 2017, eight round one in the north and five in the south: a reconstruction, not a photograph.',
+    },
+    // The Sun's card (ui/cards.js sunLine), while its detail is drawn.
+    sun: {
+      measured: 'Measured look: the generated grain is off, and the corona and the prominences are held still.',
+      film: 'Film look: the grain is generated, and the corona and the prominences move as drawn, not as measured.',
+    },
+  },
+
   // The sky in other light (registry/otherlight.yaml, scene/otherlight.js): the chooser in What to
   // show. Each note is the honest line: which light, and that its colours are not an eye's.
   otherLight: {
@@ -635,6 +773,21 @@ Object.assign(COPY, {
       spedDay: 'The streaks move a day of wind in a second.',
       still: 'Each streak is a piece of the flow, standing still.',
       credit: 'Data: {credit}. A weather model, not a measurement.',
+    },
+    // The sea's currents (scene/currents.js, data/currents.js): streaks that follow the surface current,
+    // coloured by the sea's temperature. Two datasets and two days, so the sentence dates each.
+    currents: {
+      title: 'Ocean currents',
+      loading: 'Asking for the ocean currents.',
+      failed: 'Today’s ocean currents are not here. The globe is as it was.',
+      what: 'Currents at the sea’s surface; colour is the water’s temperature.',
+      dated: 'Worked out from the height of the sea that satellites measured on {date}: the steady flow, with no tides or wind drift, least sure on the equator.',
+      tempDated: 'Temperature measured on {date}, gaps filled.',
+      tempMissing: 'A grey streak is water with no temperature in the data.',
+      sped: 'The streaks move {n} days of drift in a second; a long streak is fast water.',
+      spedHours: 'The streaks move {n} hours of drift in a second; a long streak is fast water.',
+      still: 'Each streak is a piece of the flow, standing still; a long one is fast water.',
+      credit: 'Data: {credit}.',
     },
     legendAria: '{title}, from {low} to {high} {unit}',
     legendHigh: '{high} {unit}',
@@ -735,7 +888,6 @@ Object.assign(COPY, {
     // Said once, on the carrier's card, because it is true of every row in the list and the
     // alternative is a visitor wondering why they cannot tap the thing they can see.
     note: 'These have no dot of their own. They are exactly where this spacecraft is, because they are bolted to it.',
-    ridingLabel: 'Riding on',
     backTitle: 'Open the card for the spacecraft carrying this',
   },
 
@@ -1006,7 +1158,6 @@ Object.assign(COPY, {
         deniedHow: 'To allow it: reload, then choose Allow when asked.',
         none: 'No motion sensor answered here. Dragging still works.',
         unsupported: 'This browser gives no motion sensor. Dragging still works.',
-        lineUp: 'Line it up',
         lineUpWith: 'Sky off? Drag until {name} lines up.',
         lineUpPlain: 'Sky off? Drag until a bright star lines up.',
         lined: 'Lined up by hand, {n}° from the compass.',
@@ -1544,5 +1695,64 @@ Object.assign(COPY, {
       snowball: 'frozen over',
       eyeball: 'one face always to its star',
     },
+  },
+
+  // DEEP SPACE (internal spec 0075, 2026-10-14). ONE BLOCK PER STAGE, created here by stage a so the
+  // stages that run in parallel each fill their own and never edit the same lines (design section
+  // 11, amendment of 2026-10-14): deep (a: the foundation), deepHelix (b), deepLmc (c), deepGalaxy
+  // (d), deepCosmos (e). A stage writes only inside its own block.
+  deep: {
+    // The card's microlabel for a deep-sky object inside another (task 3): "Emission nebula · Inside
+    // the Large Magellanic Cloud". `companion` for a galaxy beside a galaxy (M32 by Andromeda).
+    inside: 'Inside the {parent}',
+    companion: 'A companion of the {parent}',
+    // Finer kinds for the microlabel, by OpenNGC type code; anything else keeps the plain kind.
+    kinds: { HII: 'emission nebula', PN: 'planetary nebula', SNR: 'supernova remnant', RfN: 'reflection nebula', DrkN: 'dark nebula', GCl: 'globular cluster' },
+    // The way back out (task 3): a child's card offers its parent.
+    back: 'Back to the {parent}',
+    backTitle: 'Fly out to the {parent} round it',
+  },
+
+  // b. The Helix (stage b, internal #787) writes only inside this block.
+  deepHelix: {
+    // The card's honesty line, after "What is drawn: …", once the hero is shipped (ui/cardfacts.js
+    // honestyClause reads `card[heroId]`). The numbers are registry/deepsky-heroes/helix.yaml's.
+    card: {
+      helix: 'Its light is taken from ESO’s photograph, its shape from O’Dell, McCullough and Meixner (2004): an inner disc tilted 23° and an outer ring tilted 53°. The knots are placed at their measured distances. Not yet reviewed by an astronomer.',
+    },
+    // "How astronomers reconstructed its 3D form" (package section 5.1): two sentences, sourced, for
+    // the trip "Into the Helix" (spec 0075 stage f) and a card disclosure when there is one.
+    how: 'Hubble and telescopes on the ground show two ellipses, 499″ by 459″ and 742″ by 446″. Read as circles seen at a slant they are two rings tilted 23° and 53°, and the knots’ speeds toward and away from us say which side of each is nearer (O’Dell, McCullough and Meixner 2004).',
+  },
+
+  // c. The LMC and the Tarantula (stage c, internal #788) writes only inside this block.
+  deepLmc: {
+    // The hero's own source, after the honesty line (ui/cardfacts.js honestyClause, stage b's `card[heroId]` hook).
+    card: {
+      lmc: 'This model is built from its photograph and Gaia’s counts of its own stars, tilted as measured.',
+    },
+    // The distance caveats: rows under "Distance found by" on the card.
+    rows: {
+      'dso-lmc': [['Depth of its stars', 'Not measured star by star: at this distance a star’s parallax is too small. The model spreads its stars through the disc’s known thickness.'], ['Review', 'This model has not yet been reviewed by an astronomer.']],
+      'dso-tarantula-nebula': [['Depth inside the LMC', 'Not measured: it is drawn at the LMC’s distance in its own direction. On the tilted disc it may lie about 2 000 light-years nearer.'], ['Review', 'This model has not yet been reviewed by an astronomer.']],
+    },
+  },
+
+  // d. Andromeda and galaxy structure (stage d, internal #789) writes only inside this block.
+  deepGalaxy: {},
+
+  // e. Cosmic scale (stage e, internal #790) writes only inside this block.
+  deepCosmos: {
+    // scene/shells.js: the edge of the observable universe, two lines on the scene. {n} is
+    // data/cosmology.js horizonLy() in billions (46), {age} the universe's age (13.8): the distance now
+    // and the time the light took, side by side, so the one is never taken for the other (DS-D08).
+    // Three lines, each short enough for a phone's width.
+    horizon: 'The edge of the observable universe',
+    horizonNow: 'About {n} billion light-years away now',
+    horizonWhy: 'Its light set out {age} billion years ago; space has stretched since',
+    // Past the horizon, to the map's edge at 50 billion light-years (DS-D09): what the band is.
+    edge: '{n} billion light-years: past everything we can see',
+    edgeWhy: 'The observable universe ends about {h} billion light-years away.',
+    edgeNothing: 'Nothing measured lies out here: this band is an illustration.',
   },
 });

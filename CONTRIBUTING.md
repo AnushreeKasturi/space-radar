@@ -93,8 +93,8 @@ scripts/test.sh aliases registry      # the checks that touch it
 
 Reload the page, type your word, and it is found. Commit both files (the YAML and the generated
 `site/js/data/aliases.js`), open a pull request, and that is a real contribution. Issues labelled
-[good first issue](https://github.com/Sara-Managed-Projects/space-radar/labels/good%20first%20issue)
-are about this size.
+[good first issue](docs/FIRST_PR.md#pick-a-task-2-minutes) are about this size; that page sorts them by
+track and leaves out the ones somebody has already started.
 
 ## How the project is put together
 
@@ -220,6 +220,26 @@ description, and a maintainer will render the picture and the voice onto your br
 
 Open an issue before a big one. It is much nicer to agree on the shape first.
 
+### Add, move or remove a main feature: keep the tour
+
+The map has a tour (the question mark in the tool rail): eight steps, each a hand-drawn ring
+round a real control. It is only as good as it is current, so it is data and two tests hold it.
+
+- **The steps and the feature list** are `registry/onboarding.yaml`. Its `features` name every
+  main feature and say, for each, either which step shows it (`step:`) or why the tour leaves it
+  out (`not:` and one honest line). Its head explains every field.
+- **A step points at a hook, never at a class or a place**: `data-tour="name"` on the real
+  element, set where the element is built. Move a control and its attribute moves with it.
+- **You added** a rail button, a sidebar tab, a mode fetched on demand (`ctx.want…` in
+  `site/js/main.js`) or another big control: add it to `features`, with a step if a newcomer
+  needs it in their first two minutes, and with `not:` if they do not. Most do not.
+- **You moved** one: keep its `data-tour` attribute on it. Nothing else changes.
+- **You removed** one: delete its feature, its step and its hook.
+- Then `python3 scripts/gen_onboarding_js.py`, and `node tests/test_onboarding.mjs` with
+  `python3 tests/test_onboarding_upkeep.py`: they name whatever was forgotten. A step whose
+  words changed needs its clip read again by the trips' voice (`scripts/narrate.py --only
+  onboarding`); like a trip's, a maintainer can do that on your branch.
+
 ## Tests
 
 ```bash
@@ -289,7 +309,18 @@ with a source is one of the most valuable things you can send.
 4. **A green pull request that is not a draft is merged automatically** (squashed). So "ready for
    review" means "ready to ship". If you want a human to look first, keep it a draft and ask, or
    ask a maintainer to add the `no-auto-merge` label.
-5. One topic per pull request. Small ones are merged fastest. The title becomes the changelog line:
+5. **A change to what is drawn comes with a picture.** If your pull request touches a model
+   (`site/models/`), a map (`site/textures/`), anything under `site/js/scene/`, or the registries
+   that decide what is drawn (models, textures, weather, worlds, nebulae), put at least one picture
+   taken in the app into the description: drag a screenshot into the box. A before and an after
+   from the same place is best. The `pictures` check stays red on a ready pull request without one
+   (`scripts/pr_pictures.py` is the whole rule). No fast machine? `gh workflow run look.yml --ref
+   <your branch> -f probe=smoke` takes the pictures on a GitHub runner
+   ([tools/README.md](tools/README.md)), and `tools/pr-pictures.sh <number> picture.png` puts them
+   in the description. If nothing a visitor sees can have changed, say so and a maintainer sets
+   the label `no-visual-change`. Why so strict: on one day in October 2026 five drawn features were
+   merged unseen, and the first look found a torn Pluto and a Sun made of polygons.
+6. One topic per pull request. Small ones are merged fastest. The title becomes the changelog line:
    say what changed for a visitor ("Hubble is found when you type hubble"), not what you did.
 
 Releases are cut about once a month; see [docs/RELEASING.md](docs/RELEASING.md). Who decides what,

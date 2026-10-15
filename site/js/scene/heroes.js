@@ -633,6 +633,15 @@ export function createHeroes(scene, ctx) {
         // the seeded constant attitude it has always had: a file's axes say nothing about which way
         // a spacecraft points.
         if (entry.obj.userData.attitude === 'up') standOnGround(clone);
+        // 2026-10-13: A FILE BUILT TO THE APP'S AXES KEEPS THE ATTITUDE ITS BUILD HAD. A route that
+        // says `axes: 'app'` (realmodels.js) is a mesh made here with +Z as the Earth face, +X the
+        // panel axis and the cells toward +Y, the convention scene/models.js builds to. Its axes DO
+        // say which way it points, so it flies as the procedural shape did (NOAA-21's instruments
+        // look down, a wing's cells face the Sun) and not at the seeded constant angle.
+        if (real.axes === 'app' && entry.obj.userData.attitude) {
+          clone.userData.attitude = entry.obj.userData.attitude;
+          clone.userData.klass = entry.obj.userData.klass;
+        }
         // MEASURED BEFORE THE SCALE IS COPIED ON. unitReachOf() walks world matrices, so asking it
         // after the line below would return a reach already multiplied by the drawn scale -- and
         // the clearance cap would then be computed from a number in the wrong units entirely.
@@ -880,6 +889,7 @@ export function createHeroes(scene, ctx) {
       const px = heroPixels(c.record, c.record.id === selectedId, selectedPx);
       const size = heroScale(px, c.d, h, f, altitudeCapApplies(c.record) ? c.pos : null, entry.reach, nearAlt(c));
       obj.scale.setScalar(size);
+      entry.px = c.d > 0 ? (2 * (entry.reach || 0.5) * size / c.d) * (h / 2) * f : 0;
 
       // The burn signal. propagate() already returned `phase` and `f` for this record a few
       // lines ago in candidates(); ascent() has computed both since it was written and nothing
@@ -974,6 +984,17 @@ export function createHeroes(scene, ctx) {
       const entry = live.get(id);
       if (!entry || !entry.obj || !entry.obj.visible || !root.visible) return 0;
       return (entry.reach || 0.5) * entry.obj.scale.x;
+    },
+    /**
+     * How many CSS pixels across this record's model is on screen this frame (its longest reach,
+     * both ways); 0 when no model is drawn for it, which is also the answer while its shape is
+     * still on the way. The drift asks a few seconds into a stay (ui/drift.js aDot) and does not
+     * dwell on a dot.
+     */
+    drawnPx(id) {
+      const entry = live.get(id);
+      if (!entry || !entry.obj || !entry.obj.visible || !root.visible) return 0;
+      return entry.px || 0;
     },
     setVisible(b) { root.visible = !!b; },
     dispose() {

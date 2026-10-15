@@ -2,24 +2,28 @@
 
 # Space Radar
 
-**A live 3D map of space in your browser.**<br>
-Free, open source, no account, no build step, works offline.
+**Everything in the sky, where it really is, and it tells you when it is guessing.**<br>
+A live 3D map of space in your browser. Free, open source, no account.
 
 ### [Open it: www.spaceradar.ai](https://www.spaceradar.ai/?from=gh)
 
-[![CI](https://github.com/Sara-Managed-Projects/space-radar/actions/workflows/ci.yml/badge.svg)](https://github.com/Sara-Managed-Projects/space-radar/actions/workflows/ci.yml)
-[![Code: MIT](https://img.shields.io/badge/code-MIT-blue.svg)](LICENSE)
-[![No build step](https://img.shields.io/badge/build%20step-none-brightgreen.svg)](#run-it-in-30-seconds)
-[![Runs offline](https://img.shields.io/badge/runs-offline-brightgreen.svg)](docs/RUN_LOCALLY.md)
-[![Live site](https://img.shields.io/website?url=https%3A%2F%2Fwww.spaceradar.ai&label=spaceradar.ai)](https://www.spaceradar.ai/?from=gh)
-[![Good first issues](https://img.shields.io/github/issues/Sara-Managed-Projects/space-radar/good%20first%20issue?label=good%20first%20issues&color=7057ff)](https://github.com/Sara-Managed-Projects/space-radar/labels/good%20first%20issue)
-[![Help wanted](https://img.shields.io/github/issues/Sara-Managed-Projects/space-radar/help%20wanted?label=help%20wanted&color=008672)](https://github.com/Sara-Managed-Projects/space-radar/labels/help%20wanted)
-[![Discussions](https://img.shields.io/badge/discussions-open-blue.svg)](https://github.com/Sara-Managed-Projects/space-radar/discussions)
-[![Open in GitHub Codespaces](https://img.shields.io/badge/open%20in-Codespaces-24292f?logo=github)](https://codespaces.new/Sara-Managed-Projects/space-radar)
-
 <a href="https://www.spaceradar.ai/?from=gh"><img src="assets/screenshots/zoom-to-earth.webp" width="340" alt="A twelve-second zoom from the planets down to the Earth, with the clouds of 8 October 2026, ending on the address spaceradar.ai"></a>
 
+[![CI](https://github.com/Sara-Managed-Projects/space-radar/actions/workflows/ci.yml/badge.svg)](https://github.com/Sara-Managed-Projects/space-radar/actions/workflows/ci.yml)
+[![Code: MIT](https://img.shields.io/badge/code-MIT-blue.svg)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/Sara-Managed-Projects/space-radar?label=release)](https://github.com/Sara-Managed-Projects/space-radar/releases/latest)
+[![Live site](https://img.shields.io/website?url=https%3A%2F%2Fwww.spaceradar.ai&label=spaceradar.ai)](https://www.spaceradar.ai/?from=gh)
+[![Good first issues](https://img.shields.io/github/issues/Sara-Managed-Projects/space-radar/good%20first%20issue?label=good%20first%20issues&color=7057ff)](https://github.com/Sara-Managed-Projects/space-radar/labels/good%20first%20issue)
+[![Open in GitHub Codespaces](https://img.shields.io/badge/open%20in-Codespaces-24292f?logo=github)](https://codespaces.new/Sara-Managed-Projects/space-radar)
+
 </div>
+
+- **It is real.** Satellites are worked out in your browser from public orbital data, and every
+  picture says whether it is measured, modelled or an artist's impression, with its source.
+- **It is yours to take.** MIT code, no account, no adverts, no tracking, no build step. One
+  command runs your own copy, and it [runs with no internet](docs/RUN_LOCALLY.md) too.
+- **It takes you somewhere.** One map from your own street to the Milky Way seen from outside,
+  with narrated trips that fly the camera for you.
 
 ## Run it in 30 seconds
 
@@ -30,7 +34,7 @@ git clone https://github.com/Sara-Managed-Projects/space-radar.git
 cd space-radar && python3 -m http.server 8177 --directory site      # then open http://localhost:8177
 ```
 
-26 narrated trips (205 stops), 109 389 stars in 3D, 40 star systems to fly into, about 17 000
+28 narrated trips (215 stops), 109 389 stars in 3D, 40 star systems to fly into, about 17 000
 satellites at their real positions, and every picture labelled as measured, modelled or an
 artist's impression. **Teach with it:** present mode and an autopilot screen for a classroom or a
 museum, and a [zip that runs offline](docs/RUN_LOCALLY.md).
@@ -52,8 +56,8 @@ museum, and a [zip that runs offline](docs/RUN_LOCALLY.md).
 - **Suggest or review a trip.** Astronomers: read one trip's narration for errors.
 - **Edit a word on GitHub**, with no tools at all: [CONTRIBUTING.md](CONTRIBUTING.md) shows how.
 - **Build a tiny space simulator** in one HTML file, in ten minutes: [docs/ADD_A_SIMULATOR.md](docs/ADD_A_SIMULATOR.md), shelf at [spaceradar.ai/lab](https://www.spaceradar.ai/lab/index.html).
-- Want a first task? Pick a [good first issue](https://github.com/Sara-Managed-Projects/space-radar/labels/good%20first%20issue).
-  Every first comment gets an answer within 48 hours.
+- Want a first task? [Pick one by what you like doing](docs/FIRST_PR.md#pick-a-task-2-minutes): the list
+  shows only the starter issues nobody has begun. Every first comment gets an answer within 48 hours.
 
 If Space Radar is useful to you, a star helps other people find it.
 
@@ -63,7 +67,7 @@ Space Radar is a living 3D map of space. It draws the Earth with today's clouds,
 satellites where they are this minute, the space stations and who is aboard, rockets about to
 launch, probes on their way out, every planet and 21 moons (20 of them with a real map), the stars
 in three dimensions, nebulae as telescopes photographed them, and the Milky Way from outside. Step
-down to the ground and it is tonight's sky from your own street. Twenty-six guided trips, read
+down to the ground and it is tonight's sky from your own street. Twenty-eight guided trips, read
 aloud, fly the camera for you; forty nearby star systems have a stage you can fly into. It is a static website: the physics runs in your browser, on public
 data, and every number on screen says where it came from.
 
@@ -86,7 +90,7 @@ data, and every number on screen says where it came from.
 | | |
 |---|---|
 | ![Saturn and its rings, backlit, at a stop of the trip out past Jupiter](assets/screenshots/saturn.webp) | ![The Apollo 11 lunar module on the Moon, a stop of the Moon landings trip](assets/screenshots/moon-landing.webp) |
-| **Take a guided trip.** Tonight from your street, why the Moon changes shape, the life of a star, black holes, back to the Moon with Artemis. 26 trips and 205 stops, read aloud, with captions and music. | **Stand where we have been.** Twenty places on the Moon and twelve on Mars that spacecraft reached, each on its own ground, with the facts and their sources on the card. |
+| **Take a guided trip.** Tonight from your street, why the Moon changes shape, the life of a star, black holes, back to the Moon with Artemis. 28 trips and 215 stops, read aloud, with captions and music. | **Stand where we have been.** Twenty places on the Moon and twelve on Mars that spacecraft reached, each on its own ground, with the facts and their sources on the card. |
 | ![The sky from the ground: constellations, the Milky Way and tonight's satellites over the southern horizon](assets/screenshots/sky-from-the-ground.webp) | ![The Earth coloured by the temperature of the sea, a stop of the trip The living Earth](assets/screenshots/living-earth.webp) |
 | **Look up from your own street.** The sky from the ground: figures, grids, tonight's best passes and planets, a city, town or dark sky, and a red night mode. | **Read the living Earth.** Seven maps of data measured from orbit, from NASA: sea temperature, sea ice, rain, plant life and more, each with its key and its source. |
 
@@ -164,8 +168,8 @@ It is meant to be easy and fun.
 - **[CONTRIBUTING.md](CONTRIBUTING.md)**: recipes for a trip, an object or a layer, and the style.
   [GOVERNANCE.md](GOVERNANCE.md) says who decides; [CONTRIBUTORS.md](CONTRIBUTORS.md) says who has helped.
 
-- Start with a [good first issue](https://github.com/Sara-Managed-Projects/space-radar/labels/good%20first%20issue),
-  or something marked [help wanted](https://github.com/Sara-Managed-Projects/space-radar/labels/help%20wanted).
+- Start with a good first issue: [pick one by track](docs/FIRST_PR.md#pick-a-task-2-minutes), from the
+  ones nobody has begun. Larger work is marked [help wanted](https://github.com/Sara-Managed-Projects/space-radar/labels/help%20wanted).
 - Found a wrong number or a wrong name? A [data-accuracy report](https://github.com/Sara-Managed-Projects/space-radar/issues/new?template=data-accuracy.yml)
   with a source is gold.
 - Have an idea, or teach with it? [Tell us](https://github.com/Sara-Managed-Projects/space-radar/issues/new/choose).

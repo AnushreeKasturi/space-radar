@@ -112,11 +112,21 @@ def validator(work: Path, script: str = "scripts/check_registry.py", env: dict |
     return subprocess.run([sys.executable, script], cwd=work, capture_output=True, text=True, env=env or ENV)
 
 
+# One character past MAX_SENTENCE (160), so the case proves the cap bites at the boundary rather
+# than somewhere well beyond it. Defined before CASES, which uses it.
+GLOSSARY_SAY_OVER_CAP = (
+    "A balance point 1.5 million km from Earth on the side away from the Sun, where a telescope "
+    "can keep the Earth and Sun behind it and stay cold. more words here to"
+)
+
+
 CASES: list[tuple[str, str, str, str]] = [
     # --- the dated pages and the sources page (scripts/seo_pages.py): what they print is the registry's, so the registry is held ---
     ("a source with no licence line", "sources.yaml", '    licence: "', '    licence_: "'),
     ("a source whose terms page is not https", "sources.yaml", "terms_url: https://celestrak.org/usage-policy.php", "terms_url: http://celestrak.org/usage-policy.php"),
     ("a source with no day its terms were recorded", "sources.yaml", "    terms_recorded: 2026-09-07\n", ""),
+    # One number of sources (scripts/count_facts.py source_counts): a row that does not say who publishes it cannot be counted.
+    ("a source that does not say who publishes it", "sources.yaml", "    publisher: CelesTrak\n", ""),
     ("a sky event of a kind no page knows", "sky-events.yaml", "kind: meteor-shower\n    name: \"Leonids 2026\"", "kind: comet\n    name: \"Leonids 2026\""),
     ("a sky event of a shower the registry lacks", "sky-events.yaml", "shower: geminids", "shower: geminidz"),
     ("a sky event whose map link names no world", "sky-events.yaml", "at: mercury}", "at: vulcan}"),
@@ -222,6 +232,44 @@ CASES: list[tuple[str, str, str, str]] = [
      "sources.yaml", "browser: false", "browser: maybe"),
     ("model has no licence",
      "models.yaml", 'licence: "MIT (this project)", budget_tris: 1500', "budget_tris: 1500"),
+    # --- a real model GENERATED FROM PHOTOGRAPHS (2026-10-12, public #938, internal spec 0064). Nobody
+    # published such a mesh, so its row is the only place its sources can be, and each is refused when missing.
+    ("a generated model's kind is a word the checker does not know",
+     "models.yaml", "class: station, kind: derived-from-images,", "class: station, kind: scanned,"),
+    ("a model row carries the generated-model fields and does not say it is one",
+     "models.yaml", "class: station, kind: derived-from-images,", "class: station,"),
+    ("a generated model does not print the sentence the card owes a visitor",
+     "models.yaml", 'honesty: "shape built from photographs; proportions approximate", references:', "references:"),
+    ("a generated model words its honesty line its own way",
+     "models.yaml", 'honesty: "shape built from photographs; proportions approximate", references:',
+     'honesty: "an accurate model", references:'),
+    ("a generated model's reference picture has no licence",
+     "models.yaml", 'licence: "Public domain (NASA photograph, ISS Expedition 61)", credit: "NASA", read: 2026-10-12}',
+     'credit: "NASA", read: 2026-10-12}'),
+    ("a generated model's reference picture has no page a person can open",
+     "models.yaml", 'url: "https://commons.wikimedia.org/wiki/File:ISS-61_Cygnus', 'url: "commons.wikimedia.org/wiki/File:ISS-61_Cygnus'),
+    ("a generated model's reference picture has no day it was read",
+     "models.yaml", 'licence: "Public domain (NASA photograph, ISS Expedition 55)", credit: "NASA", read: 2026-10-12}',
+     'licence: "Public domain (NASA photograph, ISS Expedition 55)", credit: "NASA"}'),
+    ("a generated model names no pictures at all",
+     "models.yaml", "proportions approximate\", references: [", "proportions approximate\", pictures: ["),
+    ("a generated model's generator has no licence for its weights",
+     "models.yaml", 'weights_licence: "MIT", run_on:', "run_on:"),
+    ("a generated model names no generator",
+     "models.yaml", '], generator: {name: "TRELLIS (image-large)"', '], made_with: {name: "TRELLIS (image-large)"'),
+    ("a generated model's dimensions cite no source",
+     "models.yaml", 'array_m: 3.7, source: "length and diameter:', 'array_m: 3.7, note: "length and diameter:'),
+    # --- 2026-10-13: a render is not a photograph, and a build from dimensions is its own kind.
+    ("a model built from dimensions names a generator",
+     "models.yaml", 'kind: built-from-dimensions, used_for: "NORAD 38358', 'kind: built-from-dimensions, generator: {name: "a model"}, used_for: "NORAD 38358'),
+    ("a model built from dimensions prints a generated model's sentence",
+     "models.yaml", 'honesty: "shape built from published dimensions and pictures; details simplified"',
+     'honesty: "shape built from photographs; proportions approximate"'),
+    ("a model generated from a render prints the sentence of one built from dimensions",
+     "models.yaml", 'repaired and coloured by Space Radar", honesty: "shape built from an artist’s render; proportions approximate", references: [{use: "generated from; A RENDER',
+     'repaired and coloured by Space Radar", honesty: "shape built from published dimensions and pictures; details simplified", references: [{use: "generated from; A RENDER'),
+    ("a generated model's cleanup does not say whether it was mirrored",
+     "models.yaml", "THE SECOND ARRAY IS A MIRROR IMAGE OF THE FIRST", "THE SECOND ARRAY IS A COPY OF THE FIRST"),
     ("event type has no lead times",
      "events.yaml", "    lead_times: [same-day, 1d, 1w, on-confirm]\n", ""),
     # Spec 0031: the browser reads events.yaml now (data/events.registry.js), so its three promises
@@ -616,6 +664,20 @@ CASES: list[tuple[str, str, str, str]] = [
     ("a deep-sky card line changed in the registry and not in the built file the card reads",
      "dso-hand.yaml", "a small galaxy that kept its jewellery", "a small galaxy that kept its rings"),
 
+    # --- the deep-sky object model (internal spec 0075 task 2) ----------------------------
+    # A parent that is not a record, a chain that comes back on itself, a distance with no method,
+    # and a child that cannot be inside its parent: each is refused and names the registry's file.
+    ("a nebula whose parent is not a deep-sky record",
+     "dso-hand.yaml", "    parent: lmc\n", "    parent: lmcc\n"),
+    ("a parent chain that comes back to itself",
+     "dso-hand.yaml", "    parent: lmc\n", "    parent: tarantula-nebula\n"),
+    ("a distance without a method",
+     "dso-hand.yaml", "distance: {method: eclipsing-binary, value_ly: 161740", "distance: {value_ly: 161740"),
+    ("a distance whose method is not one of the eight",
+     "dso-hand.yaml", "distance: {method: parallax, value_ly: 655", "distance: {method: guesswork, value_ly: 655"),
+    ("a child that cannot be inside its parent",
+     "dso-hand.yaml", "    parent: lmc\n", "    parent: helix-nebula\n"),
+
     # --- registry/nebulae.yaml (spec 0067, 2026-10-03) ------------------------------------
     # A photograph somebody else took, shipped from our bucket: licence, credit, and that it is
     # drawn where its object is.
@@ -839,11 +901,17 @@ CASES: list[tuple[str, str, str, str]] = [
     ("a weather effect drawn at the lowest tier",
      "weather.yaml", "    kind: hexagon\n    class: illustrative\n    off_at: [tier0, save_data]",
      "    kind: hexagon\n    class: illustrative\n    off_at: [save_data]"),
+    ("a weather effect that does not say what the Measured look does to it",
+     "weather.yaml", "    kind: hexagon\n    class: illustrative\n    off_at: [tier0, save_data]\n    measured: hidden\n",
+     "    kind: hexagon\n    class: illustrative\n    off_at: [tier0, save_data]\n"),
+    ("an illustrative weather effect the Measured look would still draw",
+     "weather.yaml", "    kind: hexagon\n    class: illustrative\n    off_at: [tier0, save_data]\n    measured: hidden\n",
+     "    kind: hexagon\n    class: illustrative\n    off_at: [tier0, save_data]\n    measured: same\n"),
     ("lightning that flashes for a visitor who asked for less motion",
      "weather.yaml", "off_at: [tier0, save_data, reduced_motion]", "off_at: [tier0, save_data]"),
     ("a wind profile that calls itself measured",
-     "weather.yaml", "    kind: zonal-flow\n    class: modelled\n    off_at: [tier0, save_data]\n    source:\n      name: \"Tollefson",
-     "    kind: zonal-flow\n    class: measured\n    off_at: [tier0, save_data]\n    source:\n      name: \"Tollefson"),
+     "weather.yaml", "    kind: zonal-flow\n    class: modelled\n    off_at: [tier0, save_data]\n    measured: same\n    source:\n      name: \"Tollefson",
+     "    kind: zonal-flow\n    class: measured\n    off_at: [tier0, save_data]\n    measured: same\n    source:\n      name: \"Tollefson"),
     ("a wind faster than any measured on a planet",
      "weather.yaml", "[0, -398]", "[0, -3980]"),
     ("a wind profile that does not reach the pole",
@@ -856,6 +924,14 @@ CASES: list[tuple[str, str, str, str]] = [
      "weather.yaml", "[300, 54]", "[300, 24]"),
     ("a layer the page is said to fetch, from nowhere the registry names",
      "weather.yaml", "    layer: lightning\n", ""),
+    # A glossary say is capped at MAX_SENTENCE the way a card sentence is: the card prints the
+    # definition beside the sentence that sent the reader to it, so a definition past the cap is
+    # the same defect. 161 characters is one past the cap, where 160 must still pass.
+    ("a glossary say longer than the cap allows",
+     "glossary.yaml",
+     "A balance point 1.5 million km from Earth on the side away from the Sun, where a telescope "
+     "can keep the Earth and Sun behind it and stay cold.",
+     GLOSSARY_SAY_OVER_CAP),
 ]
 
 

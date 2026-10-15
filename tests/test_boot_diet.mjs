@@ -60,6 +60,11 @@ const DEFERRED = {
   'js/ui/autopilot.js': 'a screen that plays on its own: main.js fetches it for `#ambient=` or the Trips section\'s row',
   'js/ui/autopilotplan.js': 'the reel\'s arithmetic: with ui/autopilot.js',
   'js/data/autopilot.js': 'the reels: with ui/autopilot.js',
+  'js/ui/drift.js': 'the drift, a camera that wanders on its own: main.js fetches it for `#drift=` or Just watch\'s row',
+  'js/ui/driftplan.js': 'the drift\'s arithmetic: with ui/drift.js',
+  'js/ui/onboarding.js': 'the tour: main.js fetches it when the rail\'s button is pressed, or for a first visit\'s arrow TOUR_MS after sr:layers-ready',
+  'js/ui/onboardingplan.js': 'the tour\'s arithmetic: with ui/onboarding.js',
+  'js/data/onboarding.js': 'the tour\'s steps: with ui/onboarding.js',
   'js/scene/models.js': 'the model shapes: scene/heroes.js fetches them when a record wants geometry',
   'js/scene/exoface.js': 'a drawn face for a planet nobody has seen: scene/systems.js fetches it when a system\'s stage is entered',
   'js/scene/exostage.js': 'the plain star stage of an imagined world: main.js fetches it for `#imagine=`',
@@ -106,8 +111,11 @@ const DEFERRED = {
   'js/ui/today.js': 'the dated cards: TODAY_MS after sr:layers-ready',
   'js/ui/offline.js': 'the service worker\'s module: OFFLINE_MS after sr:layers-ready',
   'js/scene/aurora.js': 'the aurora: AURORA_IMPORT_MS after sr:layers-ready',
+  'js/scene/worldlights.js': 'the worlds\' lights: WORLDLIGHTS_IMPORT_MS after sr:layers-ready',
   'js/scene/wind.js': 'the wind: main.js fetches it when Wind is chosen under Earth data',
   'js/data/wind.js': 'the wind field\'s request and arithmetic: with scene/wind.js',
+  'js/scene/currents.js': 'the ocean currents: main.js fetches it when Ocean currents is chosen under Earth data',
+  'js/data/currents.js': 'the currents\' and the sea temperature\'s saved copies and arithmetic: with scene/currents.js',
   'js/data/eonet.js': 'fires, volcanoes and icebergs: data/layers.js fetches it when the layer is ticked',
   'js/data/systems-index.js': 'which stars have a stage: main.js fetches it with the exoplanet table, after the first visit',
   'js/data/systems-table.js': 'thirty-nine star systems in full: scene/systems.js fetches them the first time one is asked for',
@@ -115,7 +123,25 @@ const DEFERRED = {
   'js/ui/systemcard.js': 'what a generated system\'s card says: it arrives with the card',
   'js/scene/ktx2.js': 'compressed maps: imported by whoever loads a map that has a .ktx2 twin (spec 0056)',
   'vendor/basis/KTX2Loader.js': 'the KTX2 loader and, through it, the Basis transcoder: scene/ktx2.js fetches it for the first such map',
+  'js/scene/sun.js': 'the Sun close up: main.js fetches it the first time its disc is large (spec 0055 task 3)',
+  'js/data/sunregions.js': 'NOAA\'s sunspot groups: with scene/sun.js',
+  'js/data/sunactivity.js': 'flares, coronal mass ejections and where a prominence stands: with scene/sun.js (spec 0073 requirement 2)',
   'js/ui/truthline.js': 'the one line of truth: with the trip frame, or the film camera',
+  // DEEP SPACE (internal spec 0075, stage a): nothing of it at boot. The coordinator is fetched when a
+  // rung of the ladder is first entered (main.js ctx.wantDeep); a hero's profile and module when it is near.
+  'js/scene/deep/deepsky.js': 'the deep-sky coordinator: main.js fetches it on the first rung of the ladder',
+  'js/scene/deep/gasmat.js': 'the gas material: with the coordinator',
+  'js/scene/deep/lodsize.js': 'level by size on screen: with the coordinator or the nebula pictures',
+  'js/scene/deep/heroes.js': 'the hero list: with the coordinator',
+  'js/scene/deep/helix.js': 'the Helix hero: the coordinator fetches it when the Helix is near',
+  'js/scene/deep/lmc.js': 'the LMC hero: the coordinator fetches it when the LMC is near',
+  'js/scene/deep/spiral.js': 'the galaxy heroes: the coordinator fetches it when Andromeda or M33 is near',
+  'js/scene/deep/localvolume.js': 'the local volume: fetched on the local-group stage',
+  'js/data/deepsky.js': 'what contains what in the deep sky: with the coordinator or the card',
+  'js/data/hero-helix.js': 'a hero\'s profile: with the coordinator',
+  'js/data/hero-lmc.js': 'a hero\'s profile: with the coordinator',
+  'js/data/hero-m31.js': 'a hero\'s profile: with the coordinator',
+  'js/data/hero-m33.js': 'a hero\'s profile: with the coordinator',
 };
 // The light embed (js/embedlite.js) has no star systems at all: neither file can reach it.
 {
@@ -141,10 +167,11 @@ const walk = (dir) => readdirSync(dir).flatMap((f) => {
 });
 const reads = new RegExp(`COPY\\.(${laterKeys.join('|')})\\b`);
 const importsLater = /import\s+'(?:\.\.?\/)+(?:copy\/)?en\.later\.js';/;
-// copy/en.facts.js: the four sections ui/cardfacts.js reads, so the light embed does not fetch the rest
-// (internal #429). en.later.js imports it; a module may import either for these.
+// copy/en.facts.js: the five sections ui/cardfacts.js reads, so the light embed does not fetch the rest
+// (internal #429; `deepFacts` since spec 0075 task 6, the tag's deep-sky words). en.later.js imports
+// it; a module may import either for these.
 const factsKeys = new Set([...readFileSync(join(JS, 'copy/en.facts.js'), 'utf8').matchAll(/^  (\w+): \{/gm)].map((m) => m[1]));
-check(factsKeys.size === 4 && ['klass', 'cls', 'unplaced', 'earthEvent'].every((k) => factsKeys.has(k)), `copy/en.facts.js holds exactly klass, cls, unplaced and earthEvent (has ${[...factsKeys]})`);
+check(factsKeys.size === 5 && ['klass', 'cls', 'unplaced', 'earthEvent', 'deepFacts'].every((k) => factsKeys.has(k)), `copy/en.facts.js holds exactly klass, cls, unplaced, earthEvent and deepFacts (has ${[...factsKeys]})`);
 check(/import '\.\/en\.facts\.js';/.test(laterText), 'copy/en.later.js imports copy/en.facts.js');
 const importsFacts = /import\s+'(?:\.\.?\/)+(?:copy\/)?en\.facts\.js';/;
 const readsAll = new RegExp(`COPY\\.(${laterKeys.join('|')})\\b`, 'g');

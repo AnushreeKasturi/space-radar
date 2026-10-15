@@ -20,7 +20,7 @@
 //   RIGHT NOW   at most three lines from live state, a missing one left out, never filler
 //   TRIPS       ui/trippicker.js's data as cards, two columns; a tap starts it
 //   COMING UP   ui/next.js, five rows, "Show all"
-//   ● 21 sources read · oldest 6 days ago             the status line; opens the sources sheet
+//   ● 21 read this visit · oldest 6 days ago          the status line; opens the sources sheet
 //
 // TABS ARE PLACES (req 3). Earth is the Earth stage; Planets the Sun's, the worlds as a list; Stars
 // the stellar rung, the ladder's far places and the star systems; Tonight the sky from your place,
@@ -377,6 +377,7 @@ export function createExplore(ctx, host) {
   head.appendChild(brand);
 
   const searchHost = el('div', 'sr-explore__search');
+  searchHost.dataset.tour = 'search'; // the tour's hook (registry/onboarding.yaml): it moves with the element
   head.appendChild(searchHost);
   const search = createSearch(ctx, searchHost);
   // The magnifier inside the field, as every search box has one; the field is the label's target.
@@ -440,6 +441,7 @@ export function createExplore(ctx, host) {
 
   const tabs = el('div', 'sr-tabs');
   tabs.setAttribute('role', 'tablist');
+  tabs.dataset.tour = 'tabs';
   tabs.setAttribute('aria-label', COPY.tabs.label);
   head.appendChild(tabs);
   root.appendChild(head);
@@ -496,6 +498,7 @@ export function createExplore(ctx, host) {
   const tripHosts = new Map();
   for (const id of TABS) {
     const s = section(COPY.tripCard.title, 'sr-trips2');
+    s.dataset.tour = 'trips';
     const grid = el('div', 'sr-tripgrid');
     const more = button('sr-more');
     more.hidden = true;
@@ -505,6 +508,7 @@ export function createExplore(ctx, host) {
     // fetched when it is first opened: a reel is nobody's first visit.
     const own = button('sr-more', COPY.tripCard.onItsOwn);
     own.title = COPY.tripCard.onItsOwnTitle;
+    own.dataset.tour = 'drift'; // the tour's hook (registry/onboarding.yaml): the drift is its first row
     own.setAttribute('aria-expanded', 'false');
     const reels = el('div', 'sr-reels');
     reels.hidden = true;
@@ -519,6 +523,13 @@ export function createExplore(ctx, host) {
         if (reels.childElementCount) return;
         reels.appendChild(el('h3', 'sr-micro', COPY.tripCard.justWatch));
         const list = el('ul', 'sr-list');
+        // The drift first (ui/drift.js, spec 0071): the one row that is not a list of trips.
+        if (typeof ctx.wantDrift === 'function') {
+          const { li, b } = rowButton(COPY.tripCard.drift, COPY.tripCard.driftLength, () => ctx.wantDrift({ drift: '1' }, 'row'));
+          b.title = COPY.tripCard.driftTitle;
+          b.dataset.reel = 'drift';
+          list.appendChild(li);
+        }
         for (const row of plan.reelRows(data.REELS, data.AUTOPILOT.default)) {
           const { li, b } = rowButton(row.title, t(COPY.tripCard.reelLength, { m: String(row.minutes) }), () => {
             if (typeof ctx.wantAutopilot === 'function') ctx.wantAutopilot({ ambient: row.id }, 'row');

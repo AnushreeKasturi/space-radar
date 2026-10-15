@@ -595,8 +595,12 @@ export const COPY = {
   // The one line at the sidebar's foot: how the sources are, and how old the oldest reading is.
   statusLine: {
     reading: 'Reading the sources',
-    read: '{n} sources read',
-    readOne: 'One source read',
+    // HOW MANY ANSWERED THIS VISIT, not how many there are: the rows this page asked for that it holds
+    // a reading of. The total is another number with another rule (the /sources/ page's "feeds from
+    // N public sources", scripts/count_facts.py source_counts), so this line says "this visit" and names no total. Short on purpose: with "· 2 stale · oldest 6 days ago" after it,
+    // it is one line of the sidebar's foot.
+    read: '{n} read this visit',
+    readOne: 'One read this visit',
     stale: '{n} stale',
     failed: '{n} could not be read',
     oldest: 'oldest {age}',
@@ -655,6 +659,10 @@ export const COPY = {
     // The reels the button opens (registry/autopilot.yaml), each with one lap's length.
     justWatch: 'Just watch',
     reelLength: '{m} min a lap',
+    // The first row of Just watch (ui/drift.js, spec 0071): no trips, no words, no end.
+    drift: 'Drift',
+    driftLength: 'no end',
+    driftTitle: 'The camera wanders from one thing to the next',
   },
   // The Planets and Stars tabs' lists.
   explore: {
@@ -686,6 +694,9 @@ export const COPY = {
     menuShare: 'Share',
     menuHide: 'Hide the panels',
     menuGitHub: 'Source on GitHub',
+    // The tour (ui/onboarding.js, internal spec 0074): the fourth tool, and its row on a phone.
+    tour: 'Take the tour',
+    menuTour: 'Take the tour',
   },
   // The time pill (0061 §7, ui/timepill.js).
   timePill: {
@@ -829,7 +840,6 @@ export const COPY = {
   // A star without a name in any catalogue people use: its HYG row is what we can say.
   stars: {
     unnamed: 'An unnamed star (HYG {n})',
-    notPlaced: '{n} more have no measured distance and are not drawn.',
   },
   // A star system at its own scale (spec 0040, scene/systems.js). The one piece of text drawn IN the
   // scene: the dashed ring on the trip's last stop is not an orbit anything has, and it says so.
@@ -1156,7 +1166,6 @@ export const COPY = {
     rightNowLabel: 'Right now',
     seeItLabel: 'See it from here',
     actionsLabel: 'What you can do',
-    sourceLabel: 'Where this comes from',
     unknownName: 'Unnamed object',
     // A record whose klass matches none of COPY.klass -- a bad feed row, a typo in a registry
     // entry -- has no template to build a sentence from. The card used to borrow the satellite
@@ -1220,7 +1229,6 @@ export const COPY = {
       // A dwarf planet's known moons, by name (data/sample.js farBodies, each from its article's
       // infobox). An empty list is a fact too: Ceres and Sedna have none that anyone has found.
       moons: 'Moons',
-      missDistance: 'Miss distance',
       perihelion: 'Closest to the Sun',
       magnitude: 'Brightness',
       phase: 'Phase',
@@ -1231,7 +1239,6 @@ export const COPY = {
       // would say we tried and failed at arithmetic; the truth is that nobody has ever known.
       whereabouts: 'Where it is',
       lastSeen: 'Last known',
-      toFindOut: 'To find out',
       // A tropical cyclone (2026-09-28, data/parsers.js parseGdacsCyclones says what each number is).
       stormNow: 'At the latest advisory',
       stormWind: 'Strongest wind on its track',
@@ -1262,7 +1269,6 @@ export const COPY = {
         depression: 'tropical depression',
       },
       stormAlert: { green: 'green', orange: 'orange', red: 'red' },
-      kmPerS: '{n} km/s',
       // The days first, so the card's three numbers read the count and not the day of the month.
       launchedAgo: '{n} days ago, on {date}',
       au: '{n} astronomical units',
@@ -1317,7 +1323,6 @@ export const COPY = {
     // In place of the three numbers, on the card of a craft whose mission is over.
     endedLine: 'Its mission ended on {date}. Its events, below, go back to it.',
     pathEndedLine: 'The path JPL holds for it ends on {date}. Its events, below, go back to it.',
-    noPosition: 'There is no position for this object right now.',
 
     actions: {
       flyTo: 'Fly to it',
@@ -1327,10 +1332,6 @@ export const COPY = {
       flyNowhere: 'There is no position for this object at this moment',
       seeFromHere: 'See it from here',
       seeFromHereTitle: 'Look up from your own place on Earth',
-      tellMeBefore: 'Tell me before',
-      // Honest, because the feature does not exist yet (specs 0015 and 0016).
-      tellMeBeforeDisabled:
-        'Reminders are not built yet. There is no sign-up and no email behind this button, so it is switched off rather than pretending.',
       // The card view's one row of four (spec 0061 §4, docs/ui-guide.md §3.10). Two words at most
       // on a button; the title says the rest.
       follow: 'Follow',
@@ -1443,6 +1444,9 @@ export const COPY = {
     spotsPaired: '{n} sunspot groups are drawn, from NOAA’s list for {date}, carried round by the Sun’s turning since then. {pairs} with several spots are drawn as a leading spot to the west and a following spot to the east; the gap and how the area is shared between the two are illustrative. The rest are one round spot.',
     spotsPairedOne: 'One sunspot group is drawn, from NOAA’s list for {date}, carried round by the Sun’s turning since then: as a leading spot to the west and a following spot to the east. The gap and how the area is shared between the two are illustrative.',
     regionsCredit: 'Today’s sunspot groups: NOAA Space Weather Prediction Center, solar region summary',
+    // The lists behind the flares and the coronal mass ejections (data/sunactivity.js); the card's own lines are in copy/en.later.js sunAlive.
+    flaresCredit: 'Solar flares: NOAA Space Weather Prediction Center, edited events list',
+    cmeCredit: 'Coronal mass ejections: NASA DONKI (Moon to Mars Space Weather Analysis Office and CCMC)',
   },
 
   clouds: {
@@ -1524,9 +1528,12 @@ export const COPY = {
     // and how much of it is known, or what its real maps show and we do not draw.
     also: {
       venus: 'The dark Y going round with it is what ultraviolet cameras see; to the eye Venus is nearly plain, and its place here is illustrative. Lightning on Venus has been reported and is still debated; none is drawn.',
-      uranus: 'On “As Hubble saw it” the bright cap over the north pole is real: Hubble has watched it brighten year after year as the northern summer of 2028 comes.',
-      neptune: 'Its bright streaks are methane ice. Hubble saw them fade after 2019 and its last dark spot dissolve, so no spot is drawn.',
+      // 2026-10-14 (spec 0073): the cap is now drawn on the artist's map too, from Hubble's own rows.
+      uranus: 'The bright cap over the north pole is real: its brightness and colour, latitude by latitude, are taken from Hubble’s map of October 2025, and Hubble has watched it brighten year after year as the northern summer of 2028 comes.',
+      // 2026-10-14 (spec 0073): the artist's map carries Voyager's spot, and it was said that none was drawn.
+      neptune: 'The dark oval on the artist’s map is Voyager 2’s Great Dark Spot of 1989, gone by 1994: illustrative, not drawn in Measured. In Film, methane cirrus casts shadows, drawn six times wider and higher than measured; each streak is ours.',
     },
+    // Jupiter's storms (2026-10-12) add two sentences to its line: copy/en.later.js `weatherStorms`.
     // Lightning on the giants (2026-10-08, internal #244), added to the world's line where it is drawn.
     flashes: {
       jupiter: 'On its night side, rare flashes stand for the lightning Juno found, most of it far in the north: the latitudes are measured, each flash is illustrative and drawn larger than life.',
@@ -1596,6 +1603,36 @@ export const COPY = {
       dawn: 'its surface is the Dawn spacecraft’s black-and-white mosaic, tinted in a grey we chose; the shadows in its craters are the ones Dawn photographed and do not move with the Sun here',
     },
     objectFamily: 'drawn as {name} — the kind of thing, not this exact one',
+    // A file made here, worn by the craft it is of (scene/realmodels.js `made`, not `generic`):
+    // not "a published model", which it is not; COPY.drawing.objectMade follows it.
+    objectOwn: 'drawn as {name}',
+    // 2026-10-12 (public #938): a model nobody published (scene/realmodels.js `made`). `images`: an
+    // image-to-3D model generated the mesh from photographs and we cleaned it. The words are the
+    // registry row's own `honesty:` (registry/models.yaml, kind derived-from-images), and
+    // tests/test_real_models.mjs fails if the two ever differ.
+    // 2026-10-13: `render`, the same road from an agency's own artist's render where no photograph
+    // of the craft in orbit exists (Seasat, XRISM, NOAA-21), and `dimensions`, a shape built here
+    // in code from cited metres with pictures looked at for the rest (NuSTAR; registry kind
+    // built-from-dimensions).
+    objectMade: {
+      images: 'shape built from photographs; proportions approximate',
+      render: 'shape built from an artist’s render; proportions approximate',
+      dimensions: 'shape built from published dimensions and pictures; details simplified',
+    },
+    // 2026-10-13 (public #969): a craft drawn as it was, not as it is (scene/realmodels.js `was`).
+    // Hitomi spun itself apart on 26 March 2016; catalogue object 41337 is its main body, and JAXA
+    // found it highly likely that both solar paddles had broken off at their bases
+    // (global.jaxa.jp/press/2016/04/20160428_hitomi.html, read 2026-10-13). The model is the craft
+    // as launched, so the card says what is really up there.
+    objectWas: {
+      hitomi: 'shown whole, as launched in February 2016; it broke apart five weeks later, and what is tracked here is its main body without the solar paddles',
+      // 2026-10-14 (public #944, #945): two craft that are whole and dead. The file is each as it
+      // flew while it worked; nobody steers either now (eoPortal, read 2026-10-14: "April 8, 2012:
+      // Contact with EnviSat was unexpectedly lost"; "The ERS-1 mission ended on March 10, 2000").
+      // "Dead since 2012" is data/layers.js's own wording for Envisat, kept.
+      envisat: 'shown steady, with its instruments to the Earth, as it flew while it worked; it has been dead since 2012 and nobody steers it',
+      ers1: 'shown steady, with its instruments to the Earth, as it flew while it worked; its mission ended in 2000 and nobody steers it',
+    },
     objectGeneric: 'drawn as a generic object; we have no shape for {name}',
     // The procedural shape a class falls back to when nothing more specific is known. Used
     // with objectFamily: "drawn as a generic satellite -- the kind of thing, not this exact one".
@@ -1643,8 +1680,12 @@ export const COPY = {
     worldMap: {
       tinted: 'its surface is a black-and-white mosaic, tinted in a colour chosen from published descriptions',
       toned: 'its colours come from infrared, green and ultraviolet pictures, toned down toward what an eye would see',
-      // 2026-10-06: New Horizons' colour camera had red and blue filters and no green one (Pluto, Charon).
+      // 2026-10-06: New Horizons' colour camera had red and blue filters and no green one (Charon; Pluto until 2026-10-12).
       redblue: 'its colours come from New Horizons’ red and blue pictures, with green taken halfway between them and the colour made half as strong again; the parts photographed only in black and white are given the map’s average colour',
+      // 2026-10-12: Pluto's map is NASA's own global colour map (Photojournal PIA11707), whose caption
+      // says it is made from three of the colour camera's filters. The camera had blue, red,
+      // near-infrared and methane filters and no green one, so no three of them are an eye's colours.
+      enhanced: 'its colours are the ones NASA published, put together from three of New Horizons’ colour filters, none of them green: this is enhanced colour, stronger than and not the same as what an eye would see',
       // Voyager 2's map of Triton, whose published version has a green cast (USGS, P. Schenk).
       balanced: 'its colours come from orange, green and blue pictures, balanced to its published colour and toned down toward what an eye would see',
       infrared: 'its surface is a near-infrared map made through the haze, tinted and softened; in visible light the haze hides the ground',
@@ -1664,6 +1705,9 @@ export const COPY = {
     // photograph of it would be, not dimmed by its distance from the Sun (Saturn gets 1/90 of the
     // Earth's sunlight). scene/worlds.js says why; this is the card saying it.
     worldLit: 'lit as a camera exposed for its own sunlight would show it',
+    // Spec 0072 (scene/worldlights.js): a world seen small is a point of light of the stars' own kind, at the
+    // magnitude computed for where the camera is. The glow is brightness, not size.
+    worldLight: 'seen from far off it is a light at its computed brightness: the glow is how a camera records a point too bright to resolve',
     // 2026-10-08 (public #404, #411, #417): where a world is drawn knowingly unlike its data. Each
     // is added after the world's "drawn as" line (scene/worlds.js worldRecords `departure`).
     // 2026-10-08 (public #426): a pulsar's blink and a black hole's picture, on the object's own card.
@@ -1674,11 +1718,16 @@ export const COPY = {
     },
     worldDeparture: {
       // The Earth (2026-10-08, scene/earth.js EARTH_RELIEF, scene/atmosphere.js EARTH_AIR): {relief}
-      // is the relief's exaggeration, {air} the shell's height gain.
-      earth: 'on a larger screen its mountains are from NOAA\u2019s ETOPO 2022 heights, drawn {relief} times steeper than they are so that a low Sun shows them; the glow of the air round its edge is drawn {air} times taller than the air is',
+      // is the relief's exaggeration, {air} the shell's height gain, {clouds} how many times thicker than
+      // they are the clouds are drawn from low orbit (scene/earth.js CLOUD_PARALLAX).
+      earth: 'on a larger screen its mountains are from NOAA\u2019s ETOPO 2022 heights, drawn {relief} times steeper than they are so that a low Sun shows them; the glow of the air round its edge is drawn {air} times taller than the air is; from low orbit on a larger screen its clouds stand up toward the horizon and under a low Sun, drawn {clouds} times thicker than they are so that their lean, their long shadows and the last light on their tops can be seen (at their true thickness in the Measured look), each top\u2019s height from its measured temperature where today\u2019s picture covers and from the cloud map\u2019s brightness elsewhere',
       mercury: 'on a larger screen its relief is from MESSENGER\u2019s elevation model, drawn {steep} times steeper than measured so that crater rims catch the light',
-      venus: 'the glow round its edge and past its day side stands for a deep haze; how thick it is drawn and how far it reaches are illustrative',
-      saturn: 'its bands are drawn with {contrast} times the contrast its map has, an adjustment of ours; \u201cAs Hubble saw it\u201d is not adjusted',
+      // Mars (2026-10-12, scene/worlds.js MARS_RELIEF): {mola} is the exaggeration of slopes and heights alike.
+      mars: 'on a larger screen its relief is from the heights Mars Global Surveyor\u2019s laser altimeter measured, drawn {mola} times steeper and taller than they are so that a low Sun shows them: the shadows Olympus Mons and the canyon walls throw are that many times too long.',
+      venus: 'the glow round its edge and past its day side stands for a deep haze; how thick it is drawn and how far it reaches are illustrative; in the Film look its cloud bands are drawn with {uv} times the contrast its map has, as ultraviolet cameras see them (to an eye they are nearly plain), and the Measured look shows the map as it is; its ground, by radar, is in relief from Magellan\u2019s altimeter, drawn {ground} times steeper and taller than measured',
+      // Neptune (2026-10-14, scene/worlds.js NEPTUNE_ARCS).
+      neptune: 'in the Film look the five arcs of its outer ring are drawn as Voyager 2 saw them in 1989, going round at their measured speed; where they are round the ring today is not computed, and two of them have since faded or moved',
+      saturn: 'its bands are drawn with {contrast} times the contrast its map has, an adjustment of ours; \u201cAs Hubble saw it\u201d is not adjusted; on a larger screen and from close, the ringlets and gaps in its rings are where Cassini measured them through the light of a star in 2008, laid over the map, and in the Film look the sparkle of grains closer still is drawn: no ring particle can be seen from here',
     },
     // ...and the Moon's night side, lit by the Earth (scene/worlds.js earthshineShare), is drawn
     // brighter than that camera would catch it. {n} is EARTHSHINE_GAIN.
@@ -1694,7 +1743,7 @@ export const COPY = {
     worldRingsDense: 'its rings are at their measured distances, drawn {w} times wider, {d} times more opaque and far brighter than they are so that they show: the real ones are faint threads as dark as charcoal',
     // The Sun close up (scene/sun.js, spec 0055 task 3): which parts of the picture are a model and
     // which are there to be seen.
-    worldSun: 'close up, its edge darkens and reddens as a model of its atmosphere says it should; the grain stands for its churning surface and is drawn far coarser than the real granules; the corona is illustrative, and drawn far brighter than it is so that it can be seen; the stars beside it are faded, as its glare hides them from any camera',
+    worldSun: 'close up, its edge darkens and reddens as a model of its atmosphere says it should; the grain stands for its churning surface: its cells are born, brighten and fade as real granules do, drawn coarser than they are (down to their real size from very close) and far faster, and the bright network toward the edge is illustrative; from very close the photographed map gives way to that drawn surface, which is illustrative too; the corona is illustrative, and drawn far brighter than it is so that it can be seen; the loops and hedgerows on its edge stand where NOAA’s active regions are near the limb, and their shapes and heights are illustrative; the stars beside it are faded, as its glare hides them from any camera',
     // Spec 0065 requirement 4 (internal #337): while a close world is drawn from map tiles, the card
     // names the mosaic under the camera. {title} is the registry row's (registry/tilesets.yaml), {res}
     // the metres one pixel of the finest tiles on screen covers. `Detail`: Mars, where the mosaic is
@@ -1870,7 +1919,6 @@ export const COPY = {
     pause: 'Pause',
     pauseTitle: 'Pause (Space)',
     play: 'Play',
-    playTitle: 'Play (Space)',
     resume: 'Resume',
     resumeTitle: 'Fly back to the stop and carry on (Space)',
     back: 'Previous stop',
@@ -1993,6 +2041,8 @@ export const COPY = {
     noObserver: 'Set where you are and this line will tell you where to look.',
     noPass: 'It does not come above your horizon in the next 24 hours.',
     notVisibleFromGround: 'This one is too far away to pick out by eye.',
+    // Fly to it, Follow or Ride along pressed from the ground: the sky view is left first (main.js leaveGround).
+    leftGround: 'Left the ground to fly there. Tonight has the sky.',
     // Stars, nebulae, galaxies: the question is brightness, not distance. Magnitude 6.5 is the
     // usual naked-eye limit from a dark site.
     nakedEye: 'Bright enough to see with your own eyes from a dark place.',
@@ -2188,11 +2238,26 @@ export const COPY = {
     tierSaver: 'Surface maps at 2k, to save data.',
     tierSmall: 'Surface maps at 2k, sized for this device.',
     tierLatched: 'Surface maps back at 2k: frames were slow.',
+    tierLow: 'Surface maps at 2k, as Low asks.',
     tier1: 'Surface maps at 4k, fetched when idle.',
     tier2: 'Surface maps at 4k, more worlds kept sharp.',
     promoted: 'Raised a step after fast frames.',
     // The Sources panel's credits: the maps the scene is wearing on this device right now.
     mapsWorn: 'Maps on this device: {credits}.',
+    // The setting (spec 0073 requirement 6; scene/quality.js qualityPlan, ui/qualitypanel.js): one row
+    // in What to show. `autoNow` is the mono note beside it while Auto is on ("Auto: High"); each
+    // word's tooltip says what it spends; `fellBack` is the one toast when slow frames end a manual choice.
+    panelTitle: 'Quality',
+    choices: { auto: 'Auto', low: 'Low', medium: 'Medium', high: 'High', ultra: 'Ultra' },
+    autoNow: 'Auto: {tier}',
+    titles: {
+      auto: 'Chosen from this device and its frame rate',
+      low: 'Lightest picture: for a battery or an old laptop',
+      medium: 'Sharper maps, relief and weather',
+      high: 'More worlds kept sharp at once',
+      ultra: 'Full resolution and the finest steps close up',
+    },
+    fellBack: 'Frames were slow: quality is back on Auto.',
   },
 
   status: {
@@ -2232,10 +2297,20 @@ export const COPY = {
     harvestUnchecked: 'Our snapshots: not checked yet.',
     harvestUnavailable:
       'Our snapshots are not available right now, so every source below is read live from its publisher, or not at all.',
-    harvestLine: 'Our snapshots: written {age} · {ok} sources ok · {refused} refused · {error} failed',
+    harvestLine: 'Our snapshots: written {age} · {ok} feeds ok · {refused} refused · {error} failed',
     errorLabel: 'Last error',
     attributionTitle: 'Credits',
     attributionIntro: 'The data on this map is other people’s work.',
+    // The footer below the full credit list (sr-status__foot): the two biggest providers of what
+    // the planets and the Earth look like, named by license rather than buried in the long list.
+    footCreditsIntro: 'Imagery and textures:',
+    footCreditsTextures: 'Solar System Scope',
+    footCreditsTexturesTitle: 'Planet and star textures, licensed CC BY 4.0',
+    footCreditsTexturesHref: 'https://www.solarsystemscope.com/textures/',
+    footCreditsNasa: 'NASA',
+    footCreditsNasaTitle: 'Cloud, night-side and surface imagery, and the 3D models',
+    footCreditsNasaHref: 'https://www.nasa.gov/',
+    footCreditsSep: ' · ',
     cloudsTitle: 'Clouds',
     auroraTitle: 'Aurora',
     weatherTitle: 'Lightning',
@@ -2253,8 +2328,6 @@ export const COPY = {
     layerCountLabel: '{n} shown',
     sourcesEmpty: 'No sources have been declared.',
     notAsked: '{n} more sources are read only when a layer that needs them is switched on.',
-    refresh: 'Read again',
-    refreshTitle: 'Ask every source that is due for a fresh copy',
   },
 
   time: {
@@ -2308,6 +2381,8 @@ export const COPY = {
     mark: 'spaceradar.ai',
     // Internal #376: the caption names the shutter when it is not the default (Camera).
     exposure: { eye: 'As the eye sees it', deep: 'Deep stretch: faint light lifted' },
+    // Spec 0073 requirement 8: and the look, when it is not the default (Film).
+    look: { measured: 'Measured look' },
   },
   // ui/cleanview.js: the button beside the GitHub mark, and its keyboard hint (H).
   // Spec 0047: the tracked object's HUD (ui/hud.js). Its numbers and its honesty line are the
@@ -2370,6 +2445,8 @@ export const GLOSSARY = {
   'astronomical unit': 'The distance from Earth to the Sun, about 150 million km.',
   'light-time':
     'How long light takes to cross a distance. It is also how long a radio message takes.',
+  'light-year':
+    'The distance light travels in one Julian year, about 9.46 trillion km. A ruler for the gap between stars.',
   magnitude: 'How bright something looks. The scale runs backwards: smaller numbers are brighter.',
   azimuth: 'A compass direction in degrees. Zero is north, 90 is east.',
   elevation: 'How high something is above the horizon, in degrees. Ninety is straight up.',
