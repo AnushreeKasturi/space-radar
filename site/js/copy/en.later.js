@@ -153,7 +153,6 @@ Object.assign(COPY, {
   // Each label says what the sphere is and how far, in words the scene can carry on one line.
   shells: {
     radio: 'Radio from Earth has reached {n} light-years',
-    cmb: 'The microwave background: 46.5 billion light-years',
   },
   // ui/subscribe.js (issue #251): email-only alerts for upcoming launches and meteor shower
   // peaks -- the same for every subscriber, never a per-location pass alert (that is issue #290).
@@ -1715,14 +1714,45 @@ Object.assign(COPY, {
   },
 
   // b. The Helix (stage b, internal #787) writes only inside this block.
-  deepHelix: {},
+  deepHelix: {
+    // The card's honesty line, after "What is drawn: …", once the hero is shipped (ui/cardfacts.js
+    // honestyClause reads `card[heroId]`). The numbers are registry/deepsky-heroes/helix.yaml's.
+    card: {
+      helix: 'Its light is taken from ESO’s photograph, its shape from O’Dell, McCullough and Meixner (2004): an inner disc tilted 23° and an outer ring tilted 53°. The knots are placed at their measured distances. Not yet reviewed by an astronomer.',
+    },
+    // "How astronomers reconstructed its 3D form" (package section 5.1): two sentences, sourced, for
+    // the trip "Into the Helix" (spec 0075 stage f) and a card disclosure when there is one.
+    how: 'Hubble and telescopes on the ground show two ellipses, 499″ by 459″ and 742″ by 446″. Read as circles seen at a slant they are two rings tilted 23° and 53°, and the knots’ speeds toward and away from us say which side of each is nearer (O’Dell, McCullough and Meixner 2004).',
+  },
 
   // c. The LMC and the Tarantula (stage c, internal #788) writes only inside this block.
-  deepLmc: {},
+  deepLmc: {
+    // The hero's own source, after the honesty line (ui/cardfacts.js honestyClause, stage b's `card[heroId]` hook).
+    card: {
+      lmc: 'This model is built from its photograph and Gaia’s counts of its own stars, tilted as measured.',
+    },
+    // The distance caveats: rows under "Distance found by" on the card.
+    rows: {
+      'dso-lmc': [['Depth of its stars', 'Not measured star by star: at this distance a star’s parallax is too small. The model spreads its stars through the disc’s known thickness.'], ['Review', 'This model has not yet been reviewed by an astronomer.']],
+      'dso-tarantula-nebula': [['Depth inside the LMC', 'Not measured: it is drawn at the LMC’s distance in its own direction. On the tilted disc it may lie about 2 000 light-years nearer.'], ['Review', 'This model has not yet been reviewed by an astronomer.']],
+    },
+  },
 
   // d. Andromeda and galaxy structure (stage d, internal #789) writes only inside this block.
   deepGalaxy: {},
 
   // e. Cosmic scale (stage e, internal #790) writes only inside this block.
-  deepCosmos: {},
+  deepCosmos: {
+    // scene/shells.js: the edge of the observable universe, two lines on the scene. {n} is
+    // data/cosmology.js horizonLy() in billions (46), {age} the universe's age (13.8): the distance now
+    // and the time the light took, side by side, so the one is never taken for the other (DS-D08).
+    // Three lines, each short enough for a phone's width.
+    horizon: 'The edge of the observable universe',
+    horizonNow: 'About {n} billion light-years away now',
+    horizonWhy: 'Its light set out {age} billion years ago; space has stretched since',
+    // Past the horizon, to the map's edge at 50 billion light-years (DS-D09): what the band is.
+    edge: '{n} billion light-years: past everything we can see',
+    edgeWhy: 'The observable universe ends about {h} billion light-years away.',
+    edgeNothing: 'Nothing measured lies out here: this band is an illustration.',
+  },
 });

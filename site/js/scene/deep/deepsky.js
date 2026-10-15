@@ -47,7 +47,7 @@ import { glowFor as dsoGlowFor } from '../dsoglow.js';
 import { radiusPx as projRadius, levelFor, classOf, THRESHOLDS, createFader } from './lodsize.js';
 import { createGasMesh, holderSteps, marchSteps, columnJs, peak2d, noiseTexture, disposeNoise, KINDS } from './gasmat.js';
 import * as gas from './gasmat.js';
-import { HEROES as LIST } from './heroes.js';
+import { HEROES as LIST, DEEP_LAYERS } from './heroes.js';
 import { nameRule as rule, parentIdOf, drawnOf as drawnClasses, discFrame, enterShare, parentApexDistance, parentPath, NAME_PARENT_PX } from '../../data/deepsky.js';
 
 const SUN_INERTIAL = 'sun-inertial';
@@ -94,6 +94,15 @@ export function createDeepSky(THREE, env = {}) {
     pending.add(p);
   }
   const heroOfRecord = (id) => { for (const h of heroes.values()) if (h.def.record === id) return h; return null; };
+  // Deep layers that are not one object (heroes.js DEEP_LAYERS: the local volume, stage e): fetched the
+  // first time their stage is entered, framed on it, hidden elsewhere.
+  const layers = new Map((env.layers || DEEP_LAYERS).map((def) => [def.id, { def, layer: null, loading: null }]));
+  function wantLayer(l) {
+    if (l.layer || l.loading) return;
+    l.loading = Promise.resolve().then(() => l.def.build()).then((mod) => { l.layer = mod.createLayer(THREE, {}); group.add(l.layer.group); })
+      .catch((e) => console.warn('deep: layer', l.def.id, 'did not load', e)).finally(() => { pending.delete(l.loading); l.loading = null; });
+    pending.add(l.loading);
+  }
 
   // ---------------------------------------------------------------------------- placing a record
   function centreOf(record, out) {
@@ -194,7 +203,8 @@ export function createDeepSky(THREE, env = {}) {
     h.loading = Promise.resolve().then(() => h.def.build()).then((mod) => {
       h.mod = mod;
       const rec = env.recordById ? env.recordById(h.def.record) : null;
-      h.hero = mod.createHero(THREE, { profile: h.profile, record: rec, gas });
+      // (stage c) quality, selectedId and pictureShare as functions: the LMC reads the Tarantula's photograph and the selection.
+      h.hero = mod.createHero(THREE, { profile: h.profile, record: rec, gas, quality: env.quality, selectedId: env.selectedId, pictureShare: env.pictureShare });
       group.add(h.hero.group);
       placeHero(h);
     }).catch((e) => console.warn('deep: hero', h.def.id, 'did not load', e)).finally(() => { pending.delete(h.loading); h.loading = null; });
@@ -241,7 +251,7 @@ export function createDeepSky(THREE, env = {}) {
       if (h.stamped || !h.profile) continue;
       const rec = env.recordById ? env.recordById(h.def.record) : null;
       if (!rec) continue;
-      if (h.profile.shipped && Array.isArray(h.profile.drawn) && rec.meta) rec.meta.heroDrawn = h.profile.drawn.slice();
+      if (h.profile.shipped && Array.isArray(h.profile.drawn) && rec.meta) { rec.meta.heroDrawn = h.profile.drawn.slice(); rec.meta.heroId = h.def.id; }
       h.stamped = true;
     }
     // Heroes: shipped (or forced), near enough to fetch, at most two drawn.
@@ -262,9 +272,23 @@ export function createDeepSky(THREE, env = {}) {
         const steps = lv >= 3 ? marchSteps({ tier: q.tier, top: q.top, latched: q.latched, scaleStep: q.scaleStep, frameMs: info.frameMs, rPx: rp, selected: selectedId === h.def.record }) : 0;
         h.hero.setLevel(share > 0 ? Math.max(2, lv) : lv, share);
         if (share > 0) {
-          h.hero.frame({ camera, rPx: rp, steps, look, reduced, frozen: isFrozen(), dtMs: info.dtMs || 0 });
+          // photo: its photograph's share now (a hero gives way to it on its line); tier and gain: the device's tier, the exposure.
+          h.hero.frame({ camera, rPx: rp, steps, look, reduced, frozen: isFrozen(), dtMs: info.dtMs || 0, photo: env.pictureShare ? env.pictureShare(h.def.record) || 0 : 0, tier: q.tier, gain });
           drawnHeroes += 1;
           heroIds.add(h.def.record);
+          // (stage c) Its children are drawn by it (the Tarantula by the LMC): no holder of their own, and
+          // the card names what is drawn for them (`card` in a hero's answer: its words block, its classes).
+          for (const c of (h.profile && h.profile.children) || []) heroIds.add(c);
+          if (h.hero.card && !h.carded) {
+            h.carded = true;
+            for (const id of [h.def.record, ...((h.profile && h.profile.children) || [])]) {
+              const r = env.recordById ? env.recordById(id) : null;
+              if (!r || !r.meta) continue;
+              if (h.hero.card.copy) r.meta.heroCopy = h.hero.card.copy;
+              const d = h.hero.card.drawn && h.hero.card.drawn[id];
+              if (Array.isArray(d) && !r.meta.heroDrawn) r.meta.heroDrawn = d.slice();
+            }
+          }
           h.idleSince = 0;
         } else if (!h.idleSince) h.idleSince = now;
         else if (now - h.idleSince > HERO_KEEP_MS && lv === 0) dropHero(h);
@@ -307,6 +331,11 @@ export function createDeepSky(THREE, env = {}) {
       }
     }
     lastCalls += drawnHeroes;
+    for (const l of layers.values()) {
+      const on = l.def.stages.includes(stage.worldId);
+      if (on) wantLayer(l);
+      if (l.layer) { l.layer.frame({ camera, renderer: info.renderer, stage, gain, visible: on }); lastCalls += l.layer.stats().calls; }
+    }
     lastCpuMs = typeof performance !== 'undefined' ? performance.now() - t0 : 0;
   }
 
@@ -329,6 +358,7 @@ export function createDeepSky(THREE, env = {}) {
   function ready() {
     if (pending.size) return false;
     for (const h of heroes.values()) if (h.hero && h.level >= 2 && !h.hero.ready()) return false;
+    for (const l of layers.values()) if (l.layer && !l.layer.ready()) return false;
     return !(env.picturesBusy && env.picturesBusy());
   }
 
@@ -341,6 +371,8 @@ export function createDeepSky(THREE, env = {}) {
     pathFor,
     drawnOf: (record) => { const h = record ? heroOfRecord(record.id) : null; return drawnClasses(record, h ? h.profile : null); },
     hero: (id) => { const h = heroes.get(id); return h ? { id, shipped: !!(h.profile && h.profile.shipped), loaded: !!h.hero, level: h.level } : null; },
+    /** record id -> how much of its hero is drawn now (the level's fade): main.js steps the point glow back by it. */
+    heroShares: () => { const m = new Map(); for (const h of heroes.values()) if (h.hero && h.level >= 2) m.set(h.def.record, fader.share(`hero:${h.def.id}`)); return m; },
     ready,
     whenReady(ms = 20000) {
       const until = Date.now() + ms;
@@ -352,6 +384,7 @@ export function createDeepSky(THREE, env = {}) {
         cpuMs: Math.round(lastCpuMs * 1000) / 1000,
         holders: [...holders.values()].map((h) => ({ id: h.id, share: Math.round(h.share * 100) / 100, rPx: Math.round(px.get(h.id) || 0), march: h.march, steps: h.steps, kind: h.glow.kind })),
         heroes: [...heroes.values()].map((h) => ({ ...(h.hero ? h.hero.stats() : {}), id: h.def.id, stage: h.def.stage, shipped: !!(h.profile && h.profile.shipped), loaded: !!h.hero, level: h.level, steps: h.steps || 0 })),
+        layers: [...layers.values()].map((l) => (l.layer ? l.layer.stats() : { id: l.def.id, loaded: false })),
         pending: pending.size,
       };
     },
@@ -366,6 +399,7 @@ export function createDeepSky(THREE, env = {}) {
       for (const h of holders.values()) h.v.dispose();
       holders.clear();
       for (const h of heroes.values()) dropHero(h);
+      for (const l of layers.values()) if (l.layer) { l.layer.dispose(); l.layer = null; }
       disposeNoise();
       if (group.parent) group.parent.remove(group);
     },

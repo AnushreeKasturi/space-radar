@@ -1418,19 +1418,88 @@ illustrations, and the card says so.
 
 ### The Helix (stage b)
 
-Stage b writes this sub-section, and only this one.
+The Helix's reconstruction (`site/js/scene/deep/helix.js`, its numbers in
+`registry/deepsky-heroes/helix.yaml`) is computed here from facts read in each source on 2026-10-15;
+no text, figure, image or model file of any of them is shipped. The sizes are the papers' arcseconds,
+turned into light-years at the registry's distance (655 ly, the Gaia parallax above).
+
+| what | the numbers | from |
+|---|---|---|
+| the inner disc and the outer ring | an inner disc 499″ across and about 100″ thick, tilted 23° out of the plane of the sky, near side toward position angle 288°; an outer ring (a torus) 742″ across, tilted 53°, near side toward 168°, "almost perpendicular to the inner-disk" | O'Dell, McCullough & Meixner 2004, AJ 128, 2339 (arXiv:astro-ph/0407556) |
+| the alternative | the outer ring may instead be lobes perpendicular to the inner disc; the card says so | O'Dell 2005, RevMexAA (SC) (arXiv:astro-ph/0505539) |
+| the interpretation | "two gas disks nearly perpendicular to each other"; the animation by NASA, ESA and A. Feild (STScI) is read, not shipped | NASA Science, Helix Nebula with annotated features; NASA, Helix Nebula (both read 2026-10-15) |
+| the knots | about 23 000 (NICMOS); found 2.2′ to 6.4′ from the star; heads at least twice the Solar System, tails about 1 000 au, pointing away from the star. 500 to 1 600 are drawn on the inner rim, at those radii and sizes; their places are seeded, not catalogued, and under 2.2 px their darkness is exaggerated so they can be seen | Meixner et al. 2005, AJ 130, 1784 (arXiv:astro-ph/0509887); Matsuura et al. 2009, ApJ 700, 1067 (arXiv:0906.2870); O'Dell & Handron, STScI news release 1996-13 |
+| the white dwarf | about 100 000 K (103 600 ± 5 500 K; later fits 110 000 to 120 000 K): its colour is a blackbody's | Napiwotzki 1999 and Traulsen et al. 2005, as quoted by Marshall et al. 2023, AJ (doi:10.3847/1538-3881/ac9d90, arXiv:2211.02251) |
+| the light | the reconstruction's light IS the photograph the app already shows, its stars removed (`scripts/build_deep_helix.py` -> `site/images/deep/helix/helix-light.webp`, 8.6 kB, an adaptation): each ring glows with the picture's colour where it covers the sky as seen from the Sun. The inner disc's projected axis (position angle 290°, axis ratio 0.88) was measured from it too | ESO eso0907a, credit ESO, CC BY 4.0 (section 3 above): "ESO"; stars removed by Space Radar |
+
+Under the Deep exposure the light takes the photograph's own Deep stretch (lifted and saturated:
+ENHANCED, and the registry says so). Which ring each part of the picture's light belongs to, the
+rings' thickness and crisp faces, and the fine radial streaks under the Film look are illustrations
+shaped to the sources above. The card says its light is the photograph's and its shape the paper's,
+that the knots are placed at their measured distances, and that no astronomer has reviewed it yet.
 
 ### The Large Magellanic Cloud and the Tarantula (stage c)
 
-Stage c writes this sub-section, and only this one.
+The LMC's 3D model (`site/js/scene/deep/lmc.js`, profile `registry/deepsky-heroes/lmc.yaml`) is built
+from star counts, catalogued positions and published geometry. No image of any paper is shipped.
+
+| what | from | licence |
+|---|---|---|
+| `site/data/deep/lmc-density.bin`: two maps of the LMC's stars on the sky (all members; young blue stars), counted from Gaia DR3 by `scripts/build_deep_lmc.py` (anonymous queries of the Gaia archive, 2026-10-15) | ESA/Gaia/DPAC; Gaia Collaboration, Vallenari et al. 2023, A&A 674, A1. The member cuts follow the manner of Gaia Collaboration, Luri et al. 2021, A&A 649, A7 | CC BY-SA 3.0 IGO; the derived map is under the same licence |
+| Positions of 21 H II regions (Henize 1956 numbers) and of the cluster R136 | SIMBAD (Wenger et al. 2000, A&AS 143, 9), CDS, Strasbourg, read 2026-10-15 | facts, credited |
+| The disc's tilt 34.7° and line of nodes 122.5°; the scale length 1.3–1.5 kpc; the outer ellipse | van der Marel & Cioni 2001, AJ 122, 1807; van der Marel 2001, AJ 122, 1827 | facts, cited |
+| The disc's thickness (the old stars' scale height from their V/σ) | van der Marel, Alves, Hardy & Suntzeff 2002, AJ 124, 2639 | facts, cited; the young stars' thickness is illustrative |
+| The Tarantula's shape: R136 in a cavity, warm gas in a shell confined by molecular gas, mapped to 75 pc | Pellegrini, Baldwin & Ferland 2011, ApJ 738, 34; Pellegrini et al. 2010, ApJS 191, 160 | facts, cited; the shell's radius and width are a model |
+
+The stars' depths, their brightness, the dust and the Tarantula's gas in depth are a model, and the card
+says so. The colours of the gas are enhanced (hydrogen-alpha pink, [O III] teal), declared in the profile.
 
 ### Andromeda and the Triangulum Galaxy (stage d)
 
-Stage d writes this sub-section, and only this one.
+Andromeda (M31) and the Triangulum Galaxy (M33) close up, and Andromeda off her photograph's line at any
+distance, are a **model** (`site/js/scene/deep/spiral.js`): statistical points generated in the browser from
+a fixed seed and the numbers in `registry/deepsky-heroes/m31.yaml` and `m33.yaml`, where each is marked
+published, `assumed` or `illustrative`. No image or data file is used or copied; the facts are cited.
+
+| what | number | source |
+|---|---|---|
+| M31's bulge and disc | Sersic n = 2.2 ± 0.3, Re = 1.0 ± 0.2 kpc; exponential disc, Rd = 5.3 ± 0.5 kpc | Courteau et al. 2011, ApJ 739, 20 (arXiv:1106.3564) |
+| M31's ring and arms | a ring of star formation of radius about 10 kpc, offset from the nucleus and split near M32; two arms in segments | Gordon et al. 2006, ApJ 638, L87 (arXiv:astro-ph/0601314) |
+| M31's inner dust ring | projected 1.5 × 1 kpc, offset about 0.5 kpc | Block et al. 2006, Nature 443, 832 (arXiv:astro-ph/0610543) |
+| M31's dust rings | R = 5.6 and 15.1 kpc | Draine et al. 2014, ApJ 780, 172 (arXiv:1306.2304) |
+| M31's tilt | position angle 38°, inclination 77° | de Vaucouleurs 1958, ApJ 128, 465, as later work adopts it |
+| M31's rotation | the south-western half approaches (the arms trail) | Rubin & Ford 1970, ApJ 159, 379 |
+| deprojected bulge | the Sersic constants b_n and p | Prugniel & Simien 1997, A&A 321, 111; Lima Neto, Gerbal & Márquez 1999, MNRAS 309, 481 |
+| M33's tilt | inclination 56° (position angle 23° is the OpenNGC row's) | Zaritsky, Elston & Hill 1989, AJ 97, 97, as cited |
+| M33's disc | K-band scale length about 1.4 kpc; a bulge contested | Regan & Vogel 1994, ApJ 434, 536, as cited |
+| NGC 604's place | RA 01h 34m 32.1s, Dec +30° 47′ 01″ (ICRS) | SIMBAD (CDS), read 2026-10-14 |
+
+The pictures of both galaxies along our line of sight stay the photographs credited in section 3 (NOIRLab
+noao0001a, ESO eso1424a).
 
 ### The cosmos: the local volume and the horizon (stage e)
 
-Stage e writes this sub-section, and only this one.
+- **The local volume's galaxies** (`site/data/deep/localvolume.bin` and `.json`, built by
+  `scripts/build_deep_localvolume.py`): the Updated Nearby Galaxy Catalog, Karachentsev I.D., Makarov
+  D.I., Kaisina E.I. 2013, *Astronomical Journal* 145, 101 (American Astronomical Society), read from
+  the CDS archive as VizieR catalogue J/AJ/145/101 (its ReadMe, table1 and table6) on 2026-10-14,
+  pinned by SHA-256 in the build script. "This research has made use of the VizieR catalogue access
+  tool, CDS, Strasbourg, France." The terms, as the VizieR licence page read that day
+  (https://cds.unistra.fr/vizier-org/licences_vizier.html): the data "are free of usage in a scientific
+  context", with the original authors and the publication cited, which this line does. Space Radar is
+  free and non-commercial. 800 of its 869 galaxies are drawn (the Milky Way and the 68 the map already
+  draws as deep-sky records are left out); the distance ranges of rows without a published error, and
+  the colours by type, are this map's (the manifest says which). The credit line:
+  Nearby galaxies: the Updated Nearby Galaxy Catalog (Karachentsev, Makarov & Kaisina 2013), via VizieR, CDS
+- **The cosmology** (`site/js/data/cosmology.js`): Planck Collaboration, "Planck 2018 results. VI.
+  Cosmological parameters", *Astronomy & Astrophysics* 641, A6 (2020), Table 2, as Astropy's
+  `Planck18` takes it. The reference values its test holds it to were computed once with Astropy
+  6.0.1 (Astropy Collaboration, BSD 3-Clause) and SciPy 1.13.1 (BSD 3-Clause), offline
+  (`scripts/cosmology_reference.py`, `tests/fixtures/cosmology_astropy.json`); neither ships.
+- **The horizon's explanation** follows NASA, "How Big is Space? We Asked a NASA Expert: Episode 61"
+  (2025-05-21, https://www.nasa.gov/science-research/astrophysics/how-big-is-space-we-asked-a-nasa-expert-episode-61/):
+  "the observable universe is about 92 billion light-years across". Words only; nothing of NASA's is
+  drawn.
 
 ## 4. Runtime data sources
 
